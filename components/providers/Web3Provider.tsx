@@ -17,7 +17,7 @@ export const arcTestnet = defineChain({
 
 const config = getDefaultConfig({
   appName: "ArcScope",
-  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ?? "00000000000000000000000000000000",
+  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID?.trim() || "00000000000000000000000000000000",
   chains: [arcTestnet],
   ssr: true,
 });
