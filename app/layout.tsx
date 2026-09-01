@@ -6,8 +6,12 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
+const configuredAppUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
+const vercelHost = process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL;
+const appUrl = configuredAppUrl || (vercelHost ? `https://${vercelHost}` : "http://localhost:3000");
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(appUrl),
   title: { default: "AScope - Arc Network intelligence", template: "%s | AScope" },
   description: "Arc-first portfolio tracking and real-time on-chain analytics, powered by native USDC data.",
   icons: { icon: "/ascope-icon.png", apple: "/ascope-icon.png" },
