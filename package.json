@@ -1,0 +1,10 @@
+{
+  "name": "arcscope",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": { "dev": "next dev", "build": "next build", "start": "next start", "lint": "next lint", "typecheck": "tsc --noEmit" },
+  "dependencies": {
+    "@base-ui/react": "^1.0.0", "@rainbow-me/rainbowkit": "2.2.0", "@tanstack/react-query": "^5.60.0", "@tanstack/react-table": "^8.20.5", "alchemy-sdk": "^3.4.0", "class-variance-authority": "^0.7.0", "clsx": "^2.1.0", "cmdk": "^1.1.1", "date-fns": "^4.1.0", "embla-carousel-react": "^8.5.2", "encoding": "^0.1.13", "framer-motion": "^11.11.0", "input-otp": "^1.4.2", "lightweight-charts": "^4.2.0", "lucide-react": "^0.460.0", "next": "^14.2.0", "next-themes": "^0.4.3", "pino-pretty": "^13.0.0", "react": "^18.3.0", "react-day-picker": "^9.8.1", "react-dom": "^18.3.0", "react-resizable-panels": "^2.1.7", "recharts": "^2.13.0", "sonner": "^1.7.0", "tailwind-merge": "^2.5.0", "viem": "2.21.0", "wagmi": "2.12.0", "zustand": "^5.0.0"
+  },
+  "devDependencies": { "@types/node": "^22.0.0", "@types/react": "^18.3.0", "@types/react-dom": "^18.3.0", "autoprefixer": "^10.4.0", "eslint": "^8.57.0", "eslint-config-next": "^14.2.0", "postcss": "^8.4.0", "tailwindcss": "^3.4.0", "typescript": "^5.6.0" }
+}

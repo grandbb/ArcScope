@@ -1,0 +1,3 @@
+import { NextResponse } from "next/server";
+import { CACHE_HEADER } from "@/lib/constants"; import { mockNfts } from "@/lib/mock-data"; import { isValidAddress } from "@/lib/validators";
+export async function GET(request: Request, { params }: { params: { address: string } }) { if (!isValidAddress(params.address)) return NextResponse.json({ data: null, error: "Invalid wallet address" }, { status: 400 }); try { const page = new URL(request.url).searchParams.get("pageKey"); return NextResponse.json({ data: { items: page ? [] : mockNfts, nextPageKey: undefined } }, { headers: { "Cache-Control": CACHE_HEADER } }); } catch { return NextResponse.json({ data: null, error: "Could not load NFTs" }, { status: 500 }); } }

@@ -1,0 +1,2 @@
+import type { DAO } from "@/lib/types"; import { EmptyState } from "@/components/shared/EmptyState"; import { DAOBadge } from "./DAOBadge";
+export function DAOMemberships({ daos }: { daos: DAO[] }) { return daos.length ? <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{daos.map((dao)=><DAOBadge key={dao.symbol} dao={dao}/>)}</div> : <EmptyState title="No DAO memberships" description="Governance token holdings such as UNI, AAVE, ENS, ARB and OP are detected automatically."/>; }

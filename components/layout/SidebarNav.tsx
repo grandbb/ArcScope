@@ -1,0 +1,3 @@
+"use client";
+import Link from "next/link"; import type { LucideIcon } from "lucide-react"; import { usePathname } from "next/navigation";
+export function SidebarNav({ items }: { items: Array<{ label: string; href: string; icon: LucideIcon }> }) { const path = usePathname(); return <nav className="space-y-1">{items.map(({ label, href, icon: Icon }) => <Link key={href} href={href} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm ${path.startsWith(href) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"}`}><Icon className="h-4 w-4"/>{label}</Link>)}</nav>; }

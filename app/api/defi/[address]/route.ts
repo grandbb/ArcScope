@@ -1,0 +1,3 @@
+import { NextResponse } from "next/server";
+import { CACHE_HEADER } from "@/lib/constants"; import { mockDefi } from "@/lib/mock-data"; import { isValidAddress } from "@/lib/validators";
+export async function GET(_: Request, { params }: { params: { address: string } }) { if (!isValidAddress(params.address)) return NextResponse.json({ data: null, error: "Invalid wallet address" }, { status: 400 }); try { return NextResponse.json({ data: mockDefi }, { headers: { "Cache-Control": CACHE_HEADER } }); } catch { return NextResponse.json({ data: null, error: "Could not load DeFi positions" }, { status: 500 }); } }

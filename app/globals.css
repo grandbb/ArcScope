@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 252 45% 98%; --foreground: 240 34% 10%;
+    --card: 0 0% 100%; --card-foreground: 240 34% 10%;
+    --popover: 0 0% 100%; --popover-foreground: 240 34% 10%;
+    --primary: 267 91% 58%; --primary-foreground: 0 0% 100%;
+    --secondary: 252 42% 95%; --secondary-foreground: 248 28% 18%;
+    --muted: 248 32% 95%; --muted-foreground: 242 11% 43%;
+    --accent: 181 94% 42%; --accent-foreground: 244 52% 8%;
+    --destructive: 0 72% 51%; --destructive-foreground: 0 0% 100%;
+    --border: 250 27% 89%; --input: 250 27% 89%; --ring: 267 91% 58%;
+    --chart-1: 267 91% 58%; --chart-2: 181 94% 42%; --chart-3: 318 91% 58%; --chart-4: 222 92% 61%; --chart-5: 153 68% 45%;
+    --radius: 1rem;
+  }
+  .dark {
+    --background: 246 48% 5%; --foreground: 240 24% 95%;
+    --card: 244 37% 8%; --card-foreground: 240 24% 95%;
+    --popover: 244 37% 8%; --popover-foreground: 240 24% 95%;
+    --primary: 269 95% 66%; --primary-foreground: 246 48% 5%;
+    --secondary: 246 28% 13%; --secondary-foreground: 240 24% 95%;
+    --muted: 245 27% 12%; --muted-foreground: 241 13% 64%;
+    --accent: 180 100% 48%; --accent-foreground: 246 48% 5%;
+    --destructive: 0 63% 48%; --destructive-foreground: 0 0% 100%;
+    --border: 248 24% 18%; --input: 248 24% 18%; --ring: 269 95% 66%;
+    --chart-1: 269 95% 66%; --chart-2: 180 100% 48%; --chart-3: 318 100% 60%; --chart-4: 220 100% 68%; --chart-5: 150 73% 55%;
+  }
+  * { @apply border-border; }
+  html { color-scheme: light; }
+  html.dark { color-scheme: dark; }
+  body {
+    @apply bg-background text-foreground;
+    background-image:
+      radial-gradient(circle at 18% -10%, hsl(var(--primary) / .18), transparent 32rem),
+      radial-gradient(circle at 90% 2%, hsl(var(--accent) / .09), transparent 26rem),
+      linear-gradient(hsl(var(--foreground) / .018) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--foreground) / .018) 1px, transparent 1px);
+    background-size: auto, auto, 48px 48px, 48px 48px;
+    background-attachment: fixed;
+  }
+  ::selection { background: hsl(var(--primary) / .32); color: hsl(var(--foreground)); }
+}
+
+@layer utilities {
+  .glass {
+    @apply border border-border/80 bg-card/75 backdrop-blur-xl;
+    box-shadow: 0 18px 55px hsl(246 80% 3% / .14), inset 0 1px 0 hsl(0 0% 100% / .045);
+  }
+  .brand-gradient { background-image: linear-gradient(115deg, hsl(var(--primary)), hsl(var(--chart-3)) 52%, hsl(var(--accent))); }
+  .brand-text { background-image: linear-gradient(105deg, hsl(var(--primary)), hsl(var(--chart-3)) 48%, hsl(var(--accent))); @apply bg-clip-text text-transparent; }
+  .brand-ring { box-shadow: 0 0 0 1px hsl(var(--primary) / .18), 0 18px 48px hsl(var(--primary) / .13); }
+  .scrollbar-none { scrollbar-width: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+}

@@ -1,0 +1,2 @@
+import Link from "next/link"; import { PortfolioView } from "@/components/portfolio/PortfolioView";
+export default function PublicPortfolioPage({ params }: { params: { address: string } }) { return <div className="space-y-4"><div className="flex justify-end"><Link href="/portfolio" className="rounded-lg px-3 py-2 text-sm text-primary hover:bg-primary/10">View your own portfolio</Link></div><PortfolioView address={params.address}/></div>; }

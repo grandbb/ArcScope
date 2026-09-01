@@ -1,0 +1,3 @@
+"use client";
+import Image from "next/image"; import type { NFTAsset } from "@/lib/types";
+export function NFTCard({ nft, onClick }: { nft: NFTAsset; onClick?: () => void }) { return <button onClick={onClick} className="overflow-hidden rounded-2xl border bg-card text-left transition hover:-translate-y-1 hover:shadow-xl"><div className="relative aspect-square bg-muted"><Image src={nft.image} alt={nft.name} fill className="object-cover"/></div><div className="p-4"><p className="text-xs text-muted-foreground">{nft.collection}</p><p className="mt-1 font-semibold">{nft.name}</p><p className="mt-3 font-mono text-sm">{nft.floorPrice?.toFixed(2) ?? "—"} ETH <span className="text-xs text-muted-foreground">floor</span></p></div></button>; }

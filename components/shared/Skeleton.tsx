@@ -1,0 +1,3 @@
+import { Skeleton as ShadcnSkeleton } from "@/components/ui/skeleton";
+export function CardSkeleton({ count = 1 }: { count?: number }) { return <>{Array.from({ length: count }, (_, index) => <div key={index} className="rounded-xl border bg-card p-4" style={{ animationDelay: `${index * 80}ms` }}><ShadcnSkeleton className="h-3 w-24"/><ShadcnSkeleton className="mt-3 h-8 w-40"/><ShadcnSkeleton className="mt-4 h-3 w-full"/></div>)}</>; }
+export function TableSkeleton({ rows = 5 }: { rows?: number }) { return <div className="space-y-3 p-4">{Array.from({ length: rows }, (_, index) => <ShadcnSkeleton key={index} className="h-12 w-full" style={{ animationDelay: `${index * 60}ms` }}/>)}</div>; }

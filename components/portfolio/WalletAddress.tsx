@@ -1,0 +1,2 @@
+import { formatAddress } from "@/lib/formatters"; import { CopyButton } from "@/components/shared/CopyButton"; import { ExternalLink } from "@/components/shared/ExternalLink";
+export function WalletAddress({ address }: { address: string }) { return <div className="flex items-center gap-1 text-sm text-muted-foreground"><span className="font-mono">{formatAddress(address, 6)}</span><CopyButton value={address}/><ExternalLink value={address}><span className="sr-only">Etherscan</span></ExternalLink></div>; }

@@ -1,0 +1,2 @@
+import { ExternalLinkIcon } from "lucide-react"; import { getChain } from "@/lib/chains";
+export function ExternalLink({ value, type = "address", chain = "arc", children }: { value: string; type?: "address" | "tx" | "token"; chain?: string; children?: React.ReactNode }) { return <a href={`${getChain(chain).explorerUrl}/${type}/${value}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">{children ?? "View on Arcscan"}<ExternalLinkIcon className="h-3 w-3"/></a>; }

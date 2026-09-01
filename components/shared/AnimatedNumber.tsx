@@ -1,0 +1,3 @@
+"use client";
+import { animate } from "framer-motion"; import { useEffect, useRef } from "react";
+export function AnimatedNumber({ value, prefix = "", suffix = "", decimals = 0 }: { value: number; prefix?: string; suffix?: string; decimals?: number }) { const node = useRef<HTMLSpanElement>(null); useEffect(() => { const controls = animate(0, value, { duration: .7, ease: "easeOut", onUpdate: (current) => { if (node.current) node.current.textContent = `${prefix}${current.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}${suffix}`; } }); return () => controls.stop(); }, [value, prefix, suffix, decimals]); return <span ref={node} className="font-mono tabular-nums"/>; }

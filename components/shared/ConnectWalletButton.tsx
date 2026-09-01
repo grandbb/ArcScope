@@ -1,0 +1,3 @@
+"use client";
+import { ConnectButton } from "@rainbow-me/rainbowkit"; import { Button } from "@/components/ui/button";
+export function ConnectWalletButton() { return <ConnectButton.Custom>{({ account, chain, openAccountModal, openChainModal, openConnectModal, mounted }) => <div style={{ opacity: mounted ? 1 : 0 }}><Button onClick={!account ? openConnectModal : chain?.unsupported ? openChainModal : openAccountModal} variant={chain?.unsupported ? "destructive" : "default"}>{!account ? "Connect wallet" : chain?.unsupported ? "Wrong network" : account.displayName}</Button></div>}</ConnectButton.Custom>; }
