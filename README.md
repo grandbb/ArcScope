@@ -137,3 +137,9 @@ npm run build
 ## License
 
 Released under the MIT License. See [LICENSE](./LICENSE).
+
+### Live dashboard feeds
+
+Whale Alerts reads confirmed native USDC Transfer events from the Arc EIP-7708 system emitter (18 decimals). It scans the latest 120 blocks, displays transfers of at least 100,000 USDC, excludes mint/burn, and refreshes every 15 seconds. It is a recent-window feed, not a persistent historical index. Using only the unified emitter avoids counting the ERC-20 interface event twice. Each result links to its transaction on Arc Explorer.
+
+Top Movers reads GeckoTerminal's returned top Arc pools and ranks tokens by absolute 24-hour price movement, selecting the most liquid returned pool per base token with at least $10,000 liquidity. Price and volume refer to that representative pool, not the whole network. Missing market capitalization and 7-day changes remain unavailable. Data refreshes every minute; provider failures show a retry state, with no demonstration fallback. Source pool links open GeckoTerminal instead of the demonstration token analytics page.

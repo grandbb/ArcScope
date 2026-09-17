@@ -3,10 +3,10 @@ export interface ChainConfig { id: number; slug: ChainSlug; name: string; shortN
 export interface TokenBalance { address: string; symbol: string; name: string; logo?: string; balance: number; price: number; value: number; change24h: number; allocation: number }
 export interface Portfolio { address: string; ensName?: string; totalValue: number; change24h: number; tokenCount: number; nftCount: number; transactionCount: number; tokens: TokenBalance[] }
 export interface Block { number: number; transactionCount: number; gasUsed: number; gasLimit: number; miner: string; timestamp: number }
-export interface WhaleTransaction { hash: string; from: string; to: string; value: number; symbol: string; timestamp: number; fromLabel?: string; toLabel?: string }
+export interface WhaleTransaction { hash: string; from: string; to: string; value: number; symbol: string; timestamp: number; fromLabel?: string; toLabel?: string; logIndex?: number; blockNumber?: number }
 export interface GasTier { name: "slow" | "standard" | "fast"; gwei: number; usd: number; waitSeconds: number }
 export interface GasData { tiers: GasTier[]; nativePrice: number; nativeSymbol: string; updatedAt: string; history: Array<{ time: string; slow: number; standard: number; fast: number }> }
-export interface TrendingToken { rank: number; address: string; name: string; symbol: string; price: number; change1h: number; change24h: number; change7d: number; volume24h: number; marketCap: number }
+export interface TrendingToken { rank: number; address: string; name: string; symbol: string; price: number; change1h: number | null; change24h: number | null; change7d: number | null; volume24h: number; marketCap: number | null; sourceUrl?: string }
 export interface Transaction { hash: string; type: "send" | "receive" | "swap" | "mint" | "contract"; from: string; to: string; value: number; symbol: string; gasFee: number; timestamp: number; status: "success" | "failed" }
 export interface NFTAsset { id: string; name: string; collection: string; image: string; floorPrice?: number; description?: string; traits: Array<{ traitType: string; value: string }> }
 export interface DefiPosition { id: string; protocol: string; type: "Lending" | "Borrowing" | "LP" | "Staking"; deposited: number; value: number; pnl: number; apy: number }
