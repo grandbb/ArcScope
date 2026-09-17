@@ -2,13 +2,13 @@
 
 [![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js)](https://nextjs.org/) [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript)](https://www.typescriptlang.org/) [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v3-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
 
-ArcScope is an Arc Testnet Web3 workspace that combines a personal portfolio with real-time on-chain analytics. Every wallet, explorer, gas, and network view uses Arc Testnet exclusively.
+ArcScope is an Arc Mainnet Web3 workspace that combines a personal portfolio with real-time on-chain analytics. Every wallet, explorer, gas, and network view uses Arc Mainnet exclusively.
 
 ## Screenshots
 
-### Arc Testnet workspace
+### Arc Mainnet workspace
 
-The current interface is configured exclusively for Arc Testnet, including native USDC fees, live blocks, wallet analytics, and Arcscan links.
+The current interface is configured exclusively for Arc Mainnet, including native USDC fees, live blocks, wallet analytics, and Arc Explorer links.
 
 <table>
   <tr>
@@ -16,25 +16,29 @@ The current interface is configured exclusively for Arc Testnet, including nativ
       <img src="./public/screenshots/arcscope-logo.png" alt="ArcScope neon Arc identity" width="320" />
     </td>
     <td width="64%" align="center">
-      <img src="./public/og-image.png" alt="ArcScope Arc Testnet product preview" width="760" />
+      <img src="./public/og-image.png" alt="ArcScope Arc Mainnet product preview" width="760" />
     </td>
   </tr>
   <tr>
     <td align="center"><strong>ArcScope identity</strong><br />Arc-inspired on-chain intelligence</td>
-    <td align="center"><strong>Arc Testnet workspace</strong><br />Portfolio clarity and real-time network analytics</td>
+    <td align="center"><strong>Arc Mainnet workspace</strong><br />Portfolio clarity and real-time network analytics</td>
   </tr>
 </table>
 
 | View | Route | Current scope |
 | --- | --- | --- |
-| Dashboard | `/dashboard` | Arc Testnet blocks, USDC gas, whale alerts, and ecosystem movers |
-| Portfolio | `/portfolio` | Connected-wallet assets and Arc Testnet activity |
+| Dashboard | `/dashboard` | Live TVL, DEX volumes, protocol fees, gas, and Arc Mainnet blocks |
+| Portfolio | `/portfolio` | Connected-wallet assets and Arc Mainnet activity |
 | Gas tracker | `/analytics/gas` | Arc fees displayed in USDC with Gwei as a technical detail |
 
 ## Features
 
+- Dashboard ecosystem metrics from DefiLlama: TVL, all-time DEX volume, rolling 24h/7d/30d volumes, protocol fees, and tracked DEX count
+- `/api/dashboard` aggregates independent providers with partial-failure handling; missing values display as unavailable, never fabricated zeroes
+- Dashboard refreshes every minute, with DefiLlama responses cached for five minutes; all-time volume reflects provider coverage, not necessarily the complete chain lifetime
+
 - RainbowKit wallet connection powered by wagmi v2 and viem v2
-- Arc Testnet is the primary network (Chain ID `5042002`) with native USDC gas
+- Arc Mainnet is the primary network (Chain ID `5042`) with native USDC gas
 - Aggregated token portfolio, allocation, net-worth history, and wallet profile
 - NFT gallery, filters, detail modal, traits, and paginated data hooks
 - Transaction history, yearly activity heatmap, CSV export, and explorer links
@@ -82,11 +86,13 @@ The current interface is configured exclusively for Arc Testnet, including nativ
 
 ## API key setup
 
-- [Arc](https://docs.arc.io/arc/references/connect-to-arc): ArcScope uses Circle's official public Arc Testnet RPC and WebSocket endpoints by default. Override them with `NEXT_PUBLIC_ARC_RPC_URL` and `NEXT_PUBLIC_ARC_WS_URL` when using a managed provider.
+- [Arc](https://docs.arc.io/arc/references/connect-to-arc): ArcScope uses the official Arc Mainnet HTTP endpoint `https://rpc.mainnet.arc.io` by default, with explorer links at `https://explorer.arc.io`. Override them with `NEXT_PUBLIC_ARC_RPC_URL` and `NEXT_PUBLIC_ARC_WS_URL` when using a managed provider.
 - [WalletConnect Cloud](https://cloud.walletconnect.com/): create a project and set `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` so RainbowKit can initialize production wallet connectors.
 - [CoinGecko](https://www.coingecko.com/en/api): the public API works for development; set `NEXT_PUBLIC_COINGECKO_API_KEY` if your plan provides a key and higher rate limits.
 
-Without provider keys, the interface uses realistic demonstration data so every route remains explorable. Add production keys before using live data in a deployed application.
+Live blocks use HTTP polling unless a provider WebSocket URL is configured. Circle does not list a WebSocket URL for its primary mainnet endpoint. Use a supported mainnet provider from the [RPC reference](https://docs.arc.io/arc/references/rpc-endpoints) when needed. Replace any existing testnet overrides in `.env.local` and rebuild after changing public environment variables. WalletConnect requires a valid project ID.
+
+Some analytics, NFT, DeFi, transaction-history, and market views still use demonstration data; provider keys alone do not make those views live. Native USDC balance, current gas quotes, and live blocks read mainnet. Native USDC uses 18 decimals; its ERC-20 interface uses 6 decimals and represents the same balance.
 
 ## Project structure
 

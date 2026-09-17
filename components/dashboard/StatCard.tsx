@@ -1,2 +1,20 @@
-import type { LucideIcon } from "lucide-react"; import { AnimatedNumber } from "@/components/shared/AnimatedNumber";
-export function StatCard({label,value,prefix="",suffix="",decimals=0,change,icon:Icon,sparkline=[3,5,4,7,6,8,10]}:{label:string;value:number;prefix?:string;suffix?:string;decimals?:number;change:number;icon:LucideIcon;sparkline?:number[]}){return <article className="glass group relative overflow-hidden rounded-2xl p-5 transition duration-300 hover:-translate-y-0.5 hover:border-primary/30"><div className="pointer-events-none absolute -right-12 -top-12 h-28 w-28 rounded-full bg-primary/10 blur-2xl transition group-hover:bg-primary/20"/><div className="flex items-start justify-between"><div><p className="text-[10px] font-bold tracking-[.14em] text-muted-foreground">{label}</p><p className="mt-2.5 text-2xl font-black tracking-[-.035em]"><AnimatedNumber value={value} prefix={prefix} suffix={suffix} decimals={decimals}/></p></div><span className="brand-gradient grid h-9 w-9 place-items-center rounded-xl text-white shadow-[0_8px_24px_hsl(var(--primary)/.28)]"><Icon className="h-4 w-4"/></span></div><div className="mt-5 flex items-end justify-between"><span className={change>=0?"text-xs font-semibold text-emerald-400":"text-xs font-semibold text-red-400"}>{change>=0?"+":""}{change}% <span className="font-normal text-muted-foreground">24h</span></span><div className="flex h-7 items-end gap-1">{sparkline.map((h,i)=><i key={i} className="w-1.5 rounded-t bg-gradient-to-t from-primary/35 to-accent/90" style={{height:`${Math.min(h*10,100)}%`}}/>)}</div></div></article>;}
+import type { LucideIcon } from "lucide-react";
+
+export function StatCard({ label, value, detail, change, icon: Icon, loading = false, highlight = false }: {
+  label: string; value: string; detail: string; change?: number | null;
+  icon: LucideIcon; loading?: boolean; highlight?: boolean;
+}) {
+  return <article className={`glass group relative min-w-0 overflow-hidden rounded-2xl p-5 transition duration-300 hover:-translate-y-0.5 hover:border-primary/30 ${highlight ? "border-primary/30 bg-primary/5" : ""}`}>
+    <div className="pointer-events-none absolute -right-12 -top-12 h-28 w-28 rounded-full bg-primary/10 blur-2xl" />
+    <div className="flex items-start justify-between gap-2">
+      <p className="text-[10px] font-bold tracking-[.14em] text-muted-foreground">{label}</p>
+      <span className="brand-gradient grid h-9 w-9 shrink-0 place-items-center rounded-xl text-white"><Icon className="h-4 w-4" aria-hidden="true" /></span>
+    </div>
+    {loading ? <div className="mt-2 h-9 w-32 animate-pulse rounded bg-muted" role="status" aria-label={`Loading ${label}`} /> :
+      <p className="mt-2 break-words text-3xl font-black tracking-tight tabular-nums" title={value}>{value}</p>}
+    <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{detail}</p>
+    {!loading && change !== null && change !== undefined && <p className={`mt-2 text-xs font-semibold ${change >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+      {change >= 0 ? "+" : ""}{change.toFixed(2)}% <span className="font-normal text-muted-foreground">vs. previous 24h</span>
+    </p>}
+  </article>;
+}
