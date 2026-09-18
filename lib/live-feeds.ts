@@ -21,9 +21,19 @@ export async function readTransferWindow(from: number, to: number, read: (start:
       return [...await chunk(start, middle), ...await chunk(middle + 1, end)];
     }
   }
-  const ranges: Promise<TransferLog[]>[] = [];
-  for (let start = from; start <= to; start += 30) ranges.push(chunk(start, Math.min(start + 29, to)));
-  return (await Promise.all(ranges)).flat();
+  const logs: TransferLog[] = [];
+  for (let start = from; start <= to; start += 30) logs.push(...await chunk(start, Math.min(start + 29, to)));
+  return logs;
+}
+
+export async function retryRateLimited<T>(read: () => Promise<T>): Promise<T> {
+  for (let attempt = 0; ; attempt++) {
+    try { return await read(); }
+    catch (error) {
+      if (attempt >= 2 || !(error instanceof Error) || !/rate limit|too many requests|429/i.test(error.message)) throw error;
+      await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)));
+    }
+  }
 }
 
 export function whaleCandidates(logs: TransferLog[]): TransferLog[] {
