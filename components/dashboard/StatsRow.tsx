@@ -21,9 +21,9 @@ export function StatsRow() {
     { label: "TOTAL VALUE LOCKED (TVL)", value: usd(data?.tvl), detail: "USD locked in Arc DeFi protocols", icon: Landmark, highlight: true },
     { label: "DEX TOTAL VOLUME", value: usd(data?.dexVolumeTotal), detail: "All-time tracked trading volume · USD", icon: BarChart3, highlight: true },
     { label: "DEX VOLUME · 24H", value: usd(data?.dexVolume24h), detail: "Trading volume over the last 24 hours", icon: ArrowLeftRight, change: data?.dexChange24h },
-    { label: "DEX VOLUME · 7D", value: usd(data?.dexVolume7d), detail: "Trading volume over the last 7 days", icon: CalendarDays },
-    { label: "DEX VOLUME · 30D", value: usd(data?.dexVolume30d), detail: "Trading volume over the last 30 days", icon: CalendarDays },
-    { label: "PROTOCOL FEES · 24H", value: usd(data?.fees24h), detail: "Fees paid to tracked Arc protocols · USD", icon: Coins },
+    { label: "DEX VOLUME · 7D", value: usd(data?.dexVolume7d), detail: "Trading volume over the last 7 days", icon: CalendarDays, change: data?.dexChange7d, changeLabel: "previous 7d", unavailableChangeLabel: "previous 7d" },
+    { label: "DEX VOLUME · 30D", value: usd(data?.dexVolume30d), detail: "Trading volume over the last 30 days", icon: CalendarDays, change: data?.dexChange30d, changeLabel: "previous 30d", unavailableChangeLabel: "previous 30d" },
+    { label: "PROTOCOL FEES · 24H", value: usd(data?.fees24h), detail: "Fees paid to tracked Arc protocols · USD", icon: Coins, change: data?.feesChange24h, changeLabel: "previous 24h" },
     { label: "TRACKED DEX PROTOCOLS", value: formatMetric(data?.dexProtocols ?? null), detail: "Protocols listed in DefiLlama’s Arc DEX dataset", icon: Layers },
     { label: "CURRENT GAS PRICE", value: data?.gasGwei == null ? "Unavailable" : `${formatMetric(data.gasGwei)} Gwei`, detail: "Arc RPC quote · network fees paid in USDC", icon: Fuel },
   ];

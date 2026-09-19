@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 
-export function StatCard({ label, value, detail, change, icon: Icon, loading = false, highlight = false }: {
-  label: string; value: string; detail: string; change?: number | null;
+export function StatCard({ label, value, detail, change, changeLabel = "previous 24h", unavailableChangeLabel, icon: Icon, loading = false, highlight = false }: {
+  label: string; value: string; detail: string; change?: number | null; changeLabel?: string; unavailableChangeLabel?: string;
   icon: LucideIcon; loading?: boolean; highlight?: boolean;
 }) {
   return <article className={`glass group relative min-w-0 overflow-hidden rounded-2xl p-5 transition duration-300 hover:-translate-y-0.5 hover:border-primary/30 ${highlight ? "border-primary/30 bg-primary/5" : ""}`}>
@@ -14,7 +14,8 @@ export function StatCard({ label, value, detail, change, icon: Icon, loading = f
       <p className="mt-2 break-words text-3xl font-black tracking-tight tabular-nums" title={value}>{value}</p>}
     <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{detail}</p>
     {!loading && change !== null && change !== undefined && <p className={`mt-2 text-xs font-semibold ${change >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-      {change >= 0 ? "+" : ""}{change.toFixed(2)}% <span className="font-normal text-muted-foreground">vs. previous 24h</span>
+      {change >= 0 ? "+" : ""}{change.toFixed(2)}% <span className="font-normal text-muted-foreground">vs. {changeLabel}</span>
     </p>}
+    {!loading && (change === null || change === undefined) && unavailableChangeLabel && <p className="mt-2 text-xs text-muted-foreground">N/A <span>vs. {unavailableChangeLabel} · insufficient history</span></p>}
   </article>;
 }
