@@ -1,10 +1,12 @@
 import { decodeEventLog, encodeFunctionData, isAddress, type Address, type Hex } from "viem";
-import { garcAbi, garcRuntimeBytecode } from "./generated/garc";
+import { garcAbi, garcRuntimeBytecode, garcRemixRuntimeBytecode } from "./generated/garc";
 
 export const GARC_CHAIN_ID = 5042;
 export const GARC_MESSAGE = "gARC | ArcScope";
+// Verified successful deployment on chain 5042 from the project owner's wallet.
+export const GARC_MAINNET_CONTRACT_ADDRESS = "0x582d4b53f1b261f73a343fcc9137ba9772e6eb50" as Address;
 const configuredAddress = process.env.NEXT_PUBLIC_GARC_CONTRACT_ADDRESS?.trim();
-export const GARC_CONTRACT_ADDRESS = configuredAddress && isAddress(configuredAddress) ? configuredAddress as Address : undefined;
+export const GARC_CONTRACT_ADDRESS = configuredAddress && isAddress(configuredAddress) ? configuredAddress as Address : GARC_MAINNET_CONTRACT_ADDRESS;
 
 export function garcTransaction(account: Address, contract: Address) {
   return { account, to: contract, value: BigInt(0), data: encodeFunctionData({ abi: garcAbi, functionName: "greet" }), chainId: GARC_CHAIN_ID } as const;
@@ -42,7 +44,8 @@ export async function verifyGarcContract(contract: Address, client: {
   if (await client.getChainId() !== GARC_CHAIN_ID) throw new Error("RPC network mismatch. Please use Arc Mainnet.");
   if (!isAddress(contract)) throw new Error("Invalid gARC contract address.");
   const code = await client.getCode({ address: contract });
-  if (!code || executableRuntime(code).toLowerCase() !== executableRuntime(garcRuntimeBytecode).toLowerCase()) throw new Error("This address is not the verified ArcScope gARC contract on Arc Mainnet.");
+  const expected = [garcRuntimeBytecode, garcRemixRuntimeBytecode].map(runtime => executableRuntime(runtime).toLowerCase());
+  if (!code || !expected.includes(executableRuntime(code).toLowerCase())) throw new Error("This address is not the verified ArcScope gARC contract on Arc Mainnet.");
 }
 
 export async function prepareGarc(account: Address, contract: Address, client: {

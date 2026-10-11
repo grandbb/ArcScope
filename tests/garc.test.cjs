@@ -57,6 +57,13 @@ test('Remix metadata may differ but executable contract code must match', async 
   await assert.rejects(garc.verifyGarcContract(contract, { ...client(), getCode: async () => changedCode }), /verified ArcScope/);
 });
 
+test('owner Remix runtime is accepted while modified executable code is rejected', async () => {
+  const runtime = artifact.garcRemixRuntimeBytecode;
+  await garc.verifyGarcContract(contract, { ...client(), getCode: async () => runtime });
+  await garc.verifyGarcContract(contract, { ...client(), getCode: async () => runtime.slice(0, -12) + '11' + runtime.slice(-10) });
+  await assert.rejects(garc.verifyGarcContract(contract, { ...client(), getCode: async () => '0x00' + runtime.slice(4) }), /verified ArcScope/);
+});
+
 test('cancelled/replaced transactions cannot count as confirmed gARC', () => {
   const greeting = { from: address, to: contract, value: 0n, input: garc.garcTransaction(address, contract).data };
   assert.equal(garc.isGarcTransaction(greeting, address, contract), true);
@@ -82,7 +89,7 @@ function harness(options = {}) {
       useSendTransaction: () => ({ sendTransactionAsync: async request => { events.push(['send', request]); if (options.rejectSend) throw Error('User rejected transaction'); return hash; } }),
       useWaitForTransactionReceipt: args => { receiptOptions = args; return { data: args.hash ? options.receipt : undefined, isError: !!args.hash && !!options.receiptError, refetch: async () => events.push('refetch') }; },
     },
-    '@/lib/garc': garc,
+    '@/lib/garc': { ...garc, GARC_CONTRACT_ADDRESS: options.useMainnetContract ? garc.GARC_MAINNET_CONTRACT_ADDRESS : contract },
     '@/lib/generated/garc': artifact,
     '@/stores/useGarcStore': { useGarcStore: selector => selector({ contract }) },
     '@/lib/chains': { arcMainnet: { id: 5042, blockExplorers: { default: { url: 'https://explorer.arc.io' } } } },
@@ -106,6 +113,14 @@ test('switches wrong wallet network before sending; locks repeated submissions',
   assert.equal(h.receiptOptions.hash, hash);
   assert.ok(rendered.some(node => node.props?.children === 'Submitted. Waiting for Arc confirmation…'));
   assert.ok(!rendered.some(node => node.props?.children === 'gARC confirmed on Arc Mainnet.'));
+});
+
+test('shared owner contract wins over a previously saved browser address', async () => {
+  const h = harness({ useMainnetContract: true });
+  h.render().find(node => node.type === 'button' && node.props.children === 'Send gARC · network fee only').props.onClick();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(garc.GARC_MAINNET_CONTRACT_ADDRESS, '0x582d4b53f1b261f73a343fcc9137ba9772e6eb50');
+  assert.equal(h.events.find(event => event[0] === 'send')[1].to, garc.GARC_MAINNET_CONTRACT_ADDRESS);
 });
 
 test('wallet rejection keeps confirmation absent and allows retry', async () => {

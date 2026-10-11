@@ -12,6 +12,7 @@ import { arcMainnet } from "@/lib/chains";
 import { garcAbi, garcBytecode } from "@/lib/generated/garc";
 import { verifyGarcContract } from "@/lib/garc";
 import { useGarcStore } from "@/stores/useGarcStore";
+import mainnetDeployment from "@/public/contracts/ArcGarc.mainnet.json";
 
 export default function DeployGarcPage() {
   const { address, isConnected, chainId } = useAccount();
@@ -71,6 +72,13 @@ export default function DeployGarcPage() {
 
   return <div className="mx-auto max-w-3xl space-y-6">
     <PageHeader title="Deploy gARC on Arc Mainnet" description="Create the ArcScope greeting contract from your own wallet." />
+    <section className="glass space-y-3 rounded-2xl border border-emerald-500/30 p-5 sm:p-7">
+      <h2 className="font-semibold text-emerald-500">ArcScope gARC is deployed on Arc Mainnet</h2>
+      <p className="text-sm text-muted-foreground">The Dashboard gARC button uses the project owner's contract. You can connect your wallet and record a greeting without deploying again.</p>
+      <a className="block break-all font-mono text-sm text-primary underline" href={`${arcMainnet.blockExplorers.default.url}/address/${mainnetDeployment.contractAddress}`} target="_blank" rel="noreferrer">{mainnetDeployment.contractAddress}</a>
+      <p className="break-all text-xs text-muted-foreground">Deployer: {mainnetDeployment.deployer}</p>
+      <div className="flex flex-wrap gap-4 text-sm"><a className="text-primary underline" href={`${arcMainnet.blockExplorers.default.url}/tx/${mainnetDeployment.transactionHash}`} target="_blank" rel="noreferrer">View successful deployment</a><Link href="/dashboard" className="text-primary underline">Go to Dashboard and send gARC</Link></div>
+    </section>
     <section className="glass space-y-5 rounded-2xl p-5 sm:p-7">
       <div className="space-y-3 rounded-xl border border-primary/30 bg-primary/5 p-4"><h2 className="font-semibold">Deploy with your wallet</h2><p className="text-sm text-muted-foreground">Connect a browser wallet here to deploy the compiled contract. Mobile WalletConnect QR requires this site's own valid Reown project configuration. Remix's current WalletConnect network list does not include Arc; use a browser wallet connection in Remix instead.</p><p className="text-sm text-muted-foreground">For Remix, compile with Solidity 0.8.30, optimizer enabled (200 runs), EVM Paris. Confirm that Deploy & Run shows chain 5042, leave Value at 0, and approve the gas fee in your wallet. Paste the resulting contract address below.</p><a href="https://app.remix.live/#url=https://github.com/grandbb/ArcScope/blob/main/contracts/ArcGarc.sol" target="_blank" rel="noreferrer" className="inline-block text-sm font-semibold text-primary underline">Open gARC source in Remix</a></div>
       <ol className="list-inside list-decimal space-y-2 text-sm text-muted-foreground">
@@ -90,7 +98,7 @@ export default function DeployGarcPage() {
         {hash && <a className="break-all text-primary underline" href={`${arcMainnet.blockExplorers.default.url}/tx/${receipt.data?.transactionHash ?? hash}`} target="_blank" rel="noreferrer">View deployment transaction</a>}
         {error && <p role="alert" className="break-words text-destructive">{error}</p>}
         {receipt.isError && !receipt.data && <div><p role="alert" className="text-amber-500">Confirmation is unavailable. Check the submitted transaction on Arc Explorer before deploying again.</p><Button variant="outline" className="mt-2" onClick={() => void receipt.refetch()}>Check confirmation again</Button></div>}
-        {verified && <div className="space-y-3 rounded-xl border border-emerald-500/30 p-4"><p className="font-semibold text-emerald-500">gARC contract verified on Arc Mainnet.</p><a className="block break-all font-mono text-xs text-primary underline" href={`${arcMainnet.blockExplorers.default.url}/address/${verified}`} target="_blank" rel="noreferrer">{verified}</a><p>This browser now uses this contract. Share this address with the site maintainer to configure it for all visitors.</p><Link href="/dashboard" className="inline-block text-primary underline">Return to Dashboard and send gARC</Link></div>}
+        {verified && <div className="space-y-3 rounded-xl border border-emerald-500/30 p-4"><p className="font-semibold text-emerald-500">gARC contract verified on Arc Mainnet.</p><a className="block break-all font-mono text-xs text-primary underline" href={`${arcMainnet.blockExplorers.default.url}/address/${verified}`} target="_blank" rel="noreferrer">{verified}</a><p>This contract address is saved for reference. The Dashboard uses the site's shared mainnet contract; changing it requires site configuration.</p><Link href="/dashboard" className="inline-block text-primary underline">Return to Dashboard and send gARC</Link></div>}
       </div>
     </section>
     <section className="glass space-y-3 rounded-2xl p-5">

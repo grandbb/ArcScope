@@ -1,0 +1,22 @@
+{
+  "chainId": 5042,
+  "contractAddress": "0x582d4b53f1b261f73a343fcc9137ba9772e6eb50",
+  "deployer": "0x11315Cce8f009e4CB4234FFEAF2E860b84E5b0f6",
+  "transactionHash": "0x6b58e60efa782eec60534b766175610f4d50f2b1179e754956180de7955512b0",
+  "status": "success",
+  "blockNumber": "25424923",
+  "blockHash": "0xb9afa97e129756384d573fec4b4de71d4692f84fe5110f27061a32f44826e607",
+  "deployedAt": "2026-10-11T14:21:28.000Z",
+  "value": "0",
+  "gasUsed": "386536",
+  "runtimeCodeHash": "0x61fd72c0cf674c72bf84c7683bab96fe35ef9bd954aa7087958dabea8c36403b",
+  "executableRuntimeCodeHash": "0xe5232c95a4f60a95c6758a758934d9d024c96c2009ae322f9edae9bc7b1fb44f",
+  "runtimeBytes": 1426,
+  "verifiedAgainst": {
+    "source": "ArcGarc.sol",
+    "solidity": "0.8.30",
+    "optimizerEnabled": false,
+    "evmVersion": "cancun",
+    "comparison": "Executable runtime excluding Solidity metadata; Prague yields the same executable runtime."
+  }
+}
