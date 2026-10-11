@@ -106,11 +106,12 @@ export function GarcButton() {
           {transactionHash && <a className="inline-flex items-center gap-1 break-all text-xs text-primary underline" href={`${arcMainnet.blockExplorers.default.url}/tx/${transactionHash}`} target="_blank" rel="noreferrer">View transaction on Arc Explorer <ArrowUpRight className="h-3 w-3 shrink-0" /></a>}
         </div>
         {!contract && !hash && <p className="text-sm text-muted-foreground">The gARC contract must be deployed first. <Link href="/garc/deploy" onClick={() => setOpen(false)} className="text-primary underline">Deploy with your wallet or use an existing contract</Link>.</p>}
-        {!isConnected ? <Button onClick={() => { setOpen(false); openConnectModal?.(); }}>Connect wallet</Button> :
+        {confirmed ? <Link href="/garc/leaderboard" onClick={() => setOpen(false)} className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/80">Leaderboard gARC <ArrowUpRight className="h-4 w-4" /></Link> : !isConnected ? <Button onClick={() => { setOpen(false); openConnectModal?.(); }}>Connect wallet</Button> :
           <Button onClick={() => void send()} disabled={busy || !!hash || !client || !contract}>
-            {busy ? <><Loader2 className="h-4 w-4 animate-spin" /> {submitting ? "Waiting for wallet…" : "Confirming…"}</> : hash ? confirmed ? "gARC confirmed" : "Transaction submitted" : "Send gARC · network fee only"}
+            {busy ? <><Loader2 className="h-4 w-4 animate-spin" /> {submitting ? "Waiting for wallet…" : "Confirming…"}</> : hash ? "Transaction submitted" : "Send gARC · network fee only"}
           </Button>}
         {hash && receipt.data && <Button variant="outline" onClick={() => { setHash(undefined); setError(undefined); setReplaced(false); setSentAddress(undefined); setSentContract(undefined); }}>New gARC</Button>}
+        {!confirmed && <Link href="/garc/leaderboard" onClick={() => setOpen(false)} className="text-center text-sm text-primary underline">Leaderboard gARC</Link>}
       </DialogContent>
     </Dialog>
   </>;

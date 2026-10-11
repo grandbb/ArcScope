@@ -147,6 +147,8 @@ test('confirmation uses the mined receipt and excludes a cancelled replacement',
   h.render().find(node => node.type === 'button' && node.props.children === 'Send gARC · network fee only').props.onClick();
   await new Promise(resolve => setImmediate(resolve));
   assert.ok(h.render().some(node => node.props?.children === 'gARC confirmed on Arc Mainnet.'));
+  assert.ok(h.render().some(node => node.props?.href === '/garc/leaderboard' && node.props.children[0] === 'Leaderboard gARC '));
+  assert.ok(!h.render().some(node => node.type === 'button' && node.props.children === 'gARC confirmed'));
   assert.ok(h.render().some(node => node.type === 'a' && node.props.href.endsWith(replacementHash)));
   options.receipt.logs = [];
   assert.ok(!h.render().some(node => node.props?.children === 'gARC confirmed on Arc Mainnet.'));

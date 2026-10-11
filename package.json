@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "contracts:compile": "node scripts/compile-garc.cjs",
     "contracts:check": "node scripts/compile-garc.cjs --check",
-    "test:garc": "npm run contracts:check && node --test tests/garc.test.cjs tests/garc-contract.test.cjs"
+    "test:garc": "npm run contracts:check && node --test tests/garc.test.cjs tests/garc-contract.test.cjs tests/garc-leaderboard.test.cjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.0.0",

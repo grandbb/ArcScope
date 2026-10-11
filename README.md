@@ -152,6 +152,12 @@ npm run build
 
 Released under the MIT License. See [LICENSE](./LICENSE).
 
+### gARC leaderboard
+
+`/garc/leaderboard` ranks all wallets on the owner-deployed ArcScope gARC contract by confirmed greeting count, with 100 wallets per page. Equal counts use the first greeting as the tie-breaker. Wallet search returns the global rank and page even when the wallet is outside the current page. The confirmed gARC action links to this page, and New gARC remains available for another greeting.
+
+`/api/garc/leaderboard?page=1&wallet=0x...` reads finalized Garc events from deployment block 25424923 on Arc Mainnet. RPC history is fetched in 5,000-block chunks with bounded concurrency; complete finalized chunks use the Next.js data cache. Snapshots refresh every 15 seconds. The global event sequence and each wallet count must agree with `totalGreetings()` at the same block before any rankings are returned. RPC failures or incomplete history show a retry error rather than partial rankings. If overriding the shared contract address, the deployment metadata must also match.
+
 ### Live dashboard feeds
 
 Whale Alerts reads confirmed native USDC Transfer events from the Arc EIP-7708 system emitter (18 decimals). It scans the latest 120 blocks, displays transfers of at least 100,000 USDC, excludes mint/burn, and refreshes every 15 seconds. It is a recent-window feed, not a persistent historical index. Using only the unified emitter avoids counting the ERC-20 interface event twice. Each result links to its transaction on Arc Explorer.

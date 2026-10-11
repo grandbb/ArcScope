@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { BarChart3, Bookmark, Gauge, PieChart, Settings, Sparkles, Activity } from "lucide-react";
+import { BarChart3, Bookmark, Gauge, PieChart, Settings, Sparkles, Activity, Trophy } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useWatchlistStore } from "@/stores/useWatchlistStore";
 import { formatAddress } from "@/lib/formatters";
@@ -11,6 +11,7 @@ const nav = [
   ["Dashboard", "/dashboard", Gauge], ["My Portfolio", "/portfolio", PieChart],
   ["Analytics", "/analytics", BarChart3], ["Gas Tracker", "/analytics/gas", Activity],
   ["Trending", "/trending", Sparkles], ["Watchlist", "/watchlist", Bookmark],
+  ["Leaderboard gARC", "/garc/leaderboard", Trophy],
 ] as const;
 
 export function Sidebar() {
