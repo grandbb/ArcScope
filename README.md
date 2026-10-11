@@ -94,6 +94,18 @@ Live blocks use HTTP polling unless a provider WebSocket URL is configured. Circ
 
 Some analytics, NFT, DeFi, transaction-history, and market views still use demonstration data; provider keys alone do not make those views live. Native USDC balance, current gas quotes, and live blocks read mainnet. Native USDC uses 18 decimals; its ERC-20 interface uses 6 decimals and represents the same balance.
 
+## gARC transactions
+
+The top-bar gARC button calls `greet()` on the ArcGarc smart contract on Arc Mainnet (5042). Each call records `gARC | ArcScope` in a `Garc` event and increases the caller's greeting count, total count, and latest greeting time. It transfers 0 native USDC; the wallet shows the network gas fee before signing. The contract has no minting, token approvals, admin actions, or upgrade functions.
+
+Deploy from `/garc/deploy`: connect your wallet (WalletConnect supports a mobile QR scan), approve deployment, and wait for the mined receipt and exact runtime-code verification. The deploying wallet is recorded as `deployer`. Source and standard compiler input are available under `/contracts/`. Solidity 0.8.30, optimizer 200 runs, EVM Paris. The constructor rejects other chain IDs. The verified deployment is saved in this browser; set `NEXT_PUBLIC_GARC_CONTRACT_ADDRESS` and redeploy the website to use one shared contract for all visitors. An existing address can also be imported after runtime-code verification.
+
+Alternatively, open the source in Remix, compile with the same compiler/optimizer/EVM settings, select WalletConnect and scan the mobile QR, select Arc Mainnet in the wallet, and deploy with Value 0. Import the resulting address at `/garc/deploy`. Remix can change the source path in compiler metadata; verification compares executable runtime code after removing the Solidity CBOR metadata trailer.
+
+Before sending, the app verifies the RPC network and compiled executable runtime bytecode, then estimates gas. Confirmation requires a successful receipt and the expected `Garc` event from the selected contract and wallet. Cancelled replacements do not count. If receipt fetching fails, the submitted hash remains visible and another send stays disabled until resolved.
+
+Run `npm run contracts:compile` after editing Solidity and `npm run test:garc` to check artifacts, wallet flows, and contract behavior on a local EVM. Tests use generated local accounts and do not broadcast to mainnet. Mainnet deployment and greetings require the user's wallet approval. Configure a valid `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` for QR connections.
+
 ## Project structure
 
 ```text

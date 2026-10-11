@@ -1,0 +1,24 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "ArcGarc.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity 0.8.30;\n\n/// @notice ArcScope greetings on Arc Mainnet. No token, mint, or transfer approval.\ncontract ArcGarc {\n    uint256 public constant ARC_CHAIN_ID = 5042;\n    string public constant MESSAGE = \"gARC | ArcScope\";\n    address public deployer;\n    uint256 public totalGreetings;\n    mapping(address => uint256) public greetings;\n    mapping(address => uint256) public lastGreetingAt;\n\n    event Garc(address indexed wallet, uint256 walletCount, uint256 totalCount, uint256 timestamp, string message);\n\n    constructor() {\n        require(block.chainid == ARC_CHAIN_ID, \"Arc Mainnet only\");\n        deployer = msg.sender;\n    }\n\n    /// @notice Records one greeting for the calling wallet. Only network gas is paid.\n    function greet() external {\n        uint256 walletCount = ++greetings[msg.sender];\n        uint256 totalCount = ++totalGreetings;\n        lastGreetingAt[msg.sender] = block.timestamp;\n        emit Garc(msg.sender, walletCount, totalCount, block.timestamp, MESSAGE);\n    }\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "evmVersion": "paris",
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode.object",
+          "evm.deployedBytecode.object"
+        ]
+      }
+    }
+  }
+}
