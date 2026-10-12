@@ -1,2 +1,22 @@
-import { NextResponse } from "next/server"; import { CACHE_HEADER } from "@/lib/constants"; import { isValidAddress } from "@/lib/validators";
-export async function GET(_: Request, { params }: { params: { address: string } }) { if (!isValidAddress(params.address)) return NextResponse.json({ data: null, error: "Invalid wallet address" }, { status: 400 }); try { const history = Array.from({ length: 30 }, (_, index) => ({ date: new Date(Date.now() - (29 - index) * 86400000).toISOString(), balance: 48 + Math.sin(index / 4) * 5 + index * .2, send: index % 5, receive: (index * 3) % 6, contract: (index * 2) % 8 })); return NextResponse.json({ data: { address: params.address, balance: 54.28, txCount: 2847, firstTx: "2020-11-18", lastActive: new Date().toISOString(), uniqueContracts: 426, history } }, { headers: { "Cache-Control": CACHE_HEADER } }); } catch { return NextResponse.json({ data: null, error: "Could not load wallet analytics" }, { status: 500 }); } }
+import { mainnetResponse } from "@/lib/ascope-api";
+import { readPortfolio, mainnetClient } from "@/lib/ascope-mainnet";
+import { readActivity } from "@/lib/ascope-activity";
+import type { Address } from "viem";
+export const maxDuration = 60;
+export async function GET(request: Request, { params }: { params: { address: string } }) { return mainnetResponse(request, async () => {
+  const [portfolio, activity] = await Promise.all([readPortfolio(params.address), readActivity(params.address)]);
+  const interactions = new Map<string, number>();
+  const frequency = new Map<string, {date: string; send: number; receive: number; contract: number}>();
+  const contracts = await Promise.all([...new Set(activity.items.filter(t => t.type === "contract" && t.to).map(t => t.to))].map(async address => (await mainnetClient.getCode({address: address as Address})) !== undefined && (await mainnetClient.getCode({address: address as Address})) !== "0x" ? address : null));
+  for (const tx of activity.items) {
+    const day = new Date(tx.timestamp).toISOString().slice(0,10);
+    const point = frequency.get(day) ?? {date: day, send: 0, receive: 0, contract: 0};
+    if (tx.type === "contract" || tx.type === "mint") point.contract++; else point.send++;
+    frequency.set(day, point);
+    if (contracts.includes(tx.to)) interactions.set(tx.to, (interactions.get(tx.to) ?? 0) + 1);
+  }
+  return { address: params.address, balance: portfolio.tokens[0].balance, txCount: activity.sentCount, firstTx: null,
+    lastActive: activity.items[0] ? new Date(activity.items[0].timestamp).toISOString() : null, uniqueContracts: interactions.size,
+    history: [], frequency: [...frequency.values()].sort((a,b) => a.date.localeCompare(b.date)), transactions: activity.items, tokens: portfolio.tokens,
+    interactions: [...interactions].map(([name,size]) => ({name,size})).sort((a,b) => b.size-a.size), coverage: activity.coverage + " Frequency and interactions cover the latest 10 outgoing transactions. The earliest activity requires a complete account index.", updatedAt: activity.updatedAt };
+}, params.address); }

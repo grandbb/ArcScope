@@ -1,3 +1,4 @@
-import { NextResponse } from "next/server";
-import { CACHE_HEADER } from "@/lib/constants"; import { mockTransactions } from "@/lib/mock-data"; import { isValidAddress } from "@/lib/validators";
-export async function GET(_: Request, { params }: { params: { address: string } }) { if (!isValidAddress(params.address)) return NextResponse.json({ data: null, error: "Invalid wallet address" }, { status: 400 }); try { return NextResponse.json({ data: { items: mockTransactions } }, { headers: { "Cache-Control": CACHE_HEADER } }); } catch { return NextResponse.json({ data: null, error: "Could not load transactions" }, { status: 500 }); } }
+import { mainnetResponse } from "@/lib/ascope-api";
+import { readActivity } from "@/lib/ascope-activity";
+export const maxDuration = 60;
+export async function GET(request: Request, { params }: { params: { address: string } }) { return mainnetResponse(request, () => readActivity(params.address, new URL(request.url).searchParams.get("pageKey") ?? ""), params.address); }

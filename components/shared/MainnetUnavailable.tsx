@@ -1,0 +1,1 @@
+export function MainnetUnavailable({ title, reason }: {title: string; reason?: string}) { return <section role="status" className="glass rounded-2xl p-5"><h2 className="font-semibold">{title}</h2><p className="mt-2 text-sm text-muted-foreground">{reason ?? "A verified Arc Mainnet data source is not available for this metric."}</p></section>; }

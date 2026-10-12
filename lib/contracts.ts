@@ -1,1 +1,2 @@
-export const PROTOCOL_CONTRACTS = { Aave: "0x87870Bca3F3fD6335C3F4ce8392D69350B4fa4E2", UniswapV3: "0xE592427A0AEce92De3Edee1F18E0157C05861564", Lido: "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84", Compound: "0xc3d688B66703497DAA19211EEdff47f25384cdc3", Curve: "0xD533a949740bb3306d119CC777fa900bA034cd52" } as const;
+/** Arc contracts must be verified on chain before adapters use them. Ethereum deployment addresses are not valid defaults. */
+export const PROTOCOL_CONTRACTS: Record<string, string> = {};
