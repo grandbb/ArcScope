@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAccount } from "wagmi";
 import { isAddress } from "viem";
@@ -9,7 +9,11 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { arcMainnet } from "@/lib/chains";
 import { GARC_CONTRACT_ADDRESS } from "@/lib/garc";
-import type { GarcLeaderboardResponse } from "@/lib/garc-leaderboard";
+import { paginateGarc, type GarcLeaderboardSnapshot } from "@/lib/garc-leaderboard";
+import { checkpointSnapshot, type GarcCheckpoint } from "@/lib/ascope-garc-index";
+import bootstrap from "@/public/contracts/ascope-garc-index.json";
+
+const initialSnapshot = bootstrap.contract.toLowerCase() === GARC_CONTRACT_ADDRESS.toLowerCase() ? checkpointSnapshot(bootstrap as GarcCheckpoint) : undefined;
 
 const number = (value: string | number) => BigInt(value).toLocaleString("en-US");
 
@@ -19,22 +23,38 @@ export function GarcLeaderboard({ initialWallet = "" }: { initialWallet?: string
   const [input, setInput] = useState(initialWallet);
   const [wallet, setWallet] = useState(isAddress(initialWallet, { strict: false }) ? initialWallet : "");
   const [validation, setValidation] = useState("");
-  const query = useQuery<GarcLeaderboardResponse>({
-    queryKey: ["garc-leaderboard", page, wallet],
+  const [now, setNow] = useState(Date.now());
+  const query = useQuery<GarcLeaderboardSnapshot>({
+    queryKey: ["ascope-garc-leaderboard", GARC_CONTRACT_ADDRESS],
     queryFn: async ({ signal }) => {
-      const params = new URLSearchParams({ page: String(page) });
-      if (wallet) params.set("wallet", wallet);
-      const response = await fetch(`/api/garc/leaderboard?${params}`, { signal, cache: "no-store" });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error ?? "Leaderboard unavailable. Please retry.");
-      return result.data;
+      const controller = new AbortController();
+      const abort = () => controller.abort();
+      const timeout = setTimeout(abort, 12_000);
+      signal.addEventListener("abort", abort, { once: true });
+      try {
+        const response = await fetch("/api/garc/leaderboard?snapshot=1", { signal: controller.signal, cache: "no-store" });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error ?? "Leaderboard unavailable. Please retry.");
+        return result.data;
+      } finally {
+        clearTimeout(timeout);
+        signal.removeEventListener("abort", abort);
+      }
     },
-    refetchInterval: 15_000,
-    staleTime: 10_000,
-    retry: 1,
+    initialData: initialSnapshot,
+    initialDataUpdatedAt: initialSnapshot ? Date.parse(initialSnapshot.updatedAt) : 0,
+    refetchInterval: 30_000,
+    staleTime: 20_000,
+    retry: false,
   });
-  const data = query.data;
+  const data = query.data ? paginateGarc(query.data, page, wallet || null, GARC_CONTRACT_ADDRESS) : undefined;
   const search = data?.search;
+  const delayed = !!data && (data.syncDelayed || now - Date.parse(data.updatedAt) > 120_000);
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 10_000);
+    return () => clearInterval(timer);
+  }, []);
 
   function findWallet(value: string) {
     const trimmed = value.trim();
@@ -49,7 +69,7 @@ export function GarcLeaderboard({ initialWallet = "" }: { initialWallet?: string
 
   return <div className="space-y-6">
     <PageHeader title="Leaderboard gARC" eyebrow="Arc Mainnet · On-chain greetings"
-      description="Wallets ranked by confirmed gARC greetings on your ArcScope smart contract. 100 wallets per page. Equal counts are ordered by the first confirmed greeting."
+      description="Wallets ranked by confirmed gARC greetings on your AScope smart contract. 100 wallets per page. Equal counts are ordered by the first confirmed greeting."
       actions={<Button variant="outline" onClick={() => void query.refetch()} disabled={query.isFetching}><RefreshCw className={query.isFetching ? "animate-spin" : ""} /> Refresh</Button>} />
 
     <div className="grid gap-3 sm:grid-cols-3">
@@ -82,8 +102,8 @@ export function GarcLeaderboard({ initialWallet = "" }: { initialWallet?: string
       </div>
     </section>
 
-    {query.isError && <div role="alert" className="rounded-xl border border-destructive/30 p-4 text-sm"><p className="text-destructive">{query.error.message}</p><Button variant="outline" className="mt-3" onClick={() => void query.refetch()}>Retry</Button></div>}
-    {query.isPending && <div role="status" className="flex items-center justify-center gap-2 rounded-2xl border p-16 text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /> Reading confirmed gARC greetings…</div>}
+    {(query.isError || delayed) && <div role="status" className="rounded-xl border border-amber-500/25 bg-amber-500/5 p-4 text-sm"><p className="text-amber-500">{data ? `Showing the last verified rankings from ${new Date(data.updatedAt).toLocaleString()}. ${query.isFetching ? "Checking for new greetings…" : "The network update is delayed; your saved rankings remain available."}` : "Rankings are temporarily unavailable."}</p><Button variant="outline" className="mt-3" disabled={query.isFetching} onClick={() => void query.refetch()}>Refresh rankings</Button></div>}
+    {query.isPending && <div role="status" className="flex items-center justify-center gap-2 rounded-2xl border p-16 text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /> Loading rankings…</div>}
     {data && <section className="overflow-hidden rounded-2xl border bg-card" aria-label="gARC rankings">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b p-5">
         <h2 className="flex items-center gap-2 font-semibold"><Trophy className="h-4 w-4 text-primary" /> Wallet rankings</h2>
@@ -100,12 +120,12 @@ export function GarcLeaderboard({ initialWallet = "" }: { initialWallet?: string
       </table></div> : <p className="p-12 text-center text-sm text-muted-foreground">No confirmed gARC greetings yet. Send gARC to join the leaderboard.</p>}
       <div className="flex flex-wrap items-center justify-between gap-3 border-t p-4 sm:p-5">
         <p className="text-sm text-muted-foreground">Page {data.page} of {number(data.totalPages)} · 100 wallets per page</p>
-        <div className="flex gap-2"><Button variant="outline" disabled={data.page <= 1 || query.isFetching} onClick={() => setPage(data.page - 1)}><ChevronLeft /> Previous</Button><Button variant="outline" disabled={data.page >= data.totalPages || query.isFetching} onClick={() => setPage(data.page + 1)}>Next <ChevronRight /></Button></div>
+        <div className="flex gap-2"><Button variant="outline" disabled={data.page <= 1} onClick={() => setPage(data.page - 1)}><ChevronLeft /> Previous</Button><Button variant="outline" disabled={data.page >= data.totalPages} onClick={() => setPage(data.page + 1)}>Next <ChevronRight /></Button></div>
       </div>
     </section>}
     <div className="space-y-1 text-xs text-muted-foreground">
-      <p className="break-all">Source: <a href={`${arcMainnet.blockExplorers.default.url}/address/${GARC_CONTRACT_ADDRESS}`} target="_blank" rel="noreferrer" className="text-primary underline">ArcScope gARC contract · {GARC_CONTRACT_ADDRESS}</a></p>
-      <p>Finalized transactions only · refreshes every 15 seconds{data && ` · Block ${number(data.blockNumber)} · Updated ${new Date(data.updatedAt).toLocaleTimeString()}`}. A new greeting may take a short time to appear.</p>
+      <p className="break-all">Source: <a href={`${arcMainnet.blockExplorers.default.url}/address/${GARC_CONTRACT_ADDRESS}`} target="_blank" rel="noreferrer" className="text-primary underline">AScope gARC contract · {GARC_CONTRACT_ADDRESS}</a></p>
+      <p>Finalized transactions only · rankings update about every minute{data && ` · Block ${number(data.blockNumber)} · Last verified ${new Date(data.updatedAt).toLocaleTimeString()}`}. New greetings normally appear within 1–2 minutes.</p>
     </div>
   </div>;
 }

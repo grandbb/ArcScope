@@ -3,11 +3,11 @@ import { getAddress, isAddress, type Address } from "viem";
 export const GARC_PAGE_SIZE = 100;
 export interface GarcRanking { rank: number; wallet: Address; count: string; lastGreetingAt: number }
 export interface GarcLeaderboardSnapshot {
-  entries: GarcRanking[]; totalGreetings: string; blockNumber: string; updatedAt: string;
+  entries: GarcRanking[]; totalGreetings: string; blockNumber: string; updatedAt: string; syncDelayed?: boolean;
 }
 export interface GarcLeaderboardResponse {
   entries: GarcRanking[]; page: number; pageSize: number; totalPages: number; totalWallets: number;
-  totalGreetings: string; blockNumber: string; updatedAt: string; contract: Address;
+  totalGreetings: string; blockNumber: string; updatedAt: string; contract: Address; syncDelayed?: boolean;
   search: { wallet: Address; entry: GarcRanking | null; page: number | null } | null;
 }
 export interface GarcRankingEvent {

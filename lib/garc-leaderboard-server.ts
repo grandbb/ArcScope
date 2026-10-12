@@ -1,58 +1,67 @@
 import { unstable_cache } from "next/cache";
-import { createPublicClient, http, type Address } from "viem";
+import { createPublicClient, http } from "viem";
 import { arcMainnet } from "./chains";
-import { GARC_CONTRACT_ADDRESS, GARC_MESSAGE, verifyGarcContract } from "./garc";
+import { GARC_CONTRACT_ADDRESS, verifyGarcContract } from "./garc";
 import { garcAbi } from "./generated/garc";
-import { rankGarcEvents, type GarcRankingEvent, type GarcLeaderboardSnapshot } from "./garc-leaderboard";
-import deployment from "@/public/contracts/ArcGarc.mainnet.json";
+import { checkpointSnapshot, DEPLOYED_GARC_EVENT_MESSAGE, readChangedGarcEvents, verifyEventRange, type GarcCheckpoint } from "./ascope-garc-index";
+import bootstrap from "@/public/contracts/ascope-garc-index.json";
 
-const client = createPublicClient({ chain: arcMainnet, transport: http(undefined, { batch: { batchSize: 20, wait: 25 }, timeout: 10_000, retryCount: 2, retryDelay: 1000 }) });
-const CHUNK_SIZE = BigInt(5000);
-type CachedEvent = Omit<GarcRankingEvent, "walletCount" | "totalCount" | "timestamp"> & { walletCount: string; totalCount: string; timestamp: string };
+const client = createPublicClient({ chain: arcMainnet, transport: http(undefined, { batch: { batchSize: 20, wait: 25 }, timeout: 4000, retryCount: 1, retryDelay: 500 }) });
+const cacheKey = ["ascope-garc-index-v2", GARC_CONTRACT_ADDRESS, arcMainnet.rpcUrls.default.http[0], bootstrap.blockHash];
+let latest: GarcCheckpoint = bootstrap as GarcCheckpoint;
+let pending: Promise<GarcCheckpoint> | undefined;
 
-async function readEvents(contract: Address, from: string, to: string): Promise<CachedEvent[]> {
-  const [logs, before, after] = await Promise.all([
-    client.getContractEvents({ address: contract, abi: garcAbi, eventName: "Garc", fromBlock: BigInt(from), toBlock: BigInt(to), strict: true }),
-    BigInt(from) === BigInt(deployment.blockNumber) ? Promise.resolve(BigInt(0)) : client.readContract({ address: contract, abi: garcAbi, functionName: "totalGreetings", blockNumber: BigInt(from) - BigInt(1) }),
-    client.readContract({ address: contract, abi: garcAbi, functionName: "totalGreetings", blockNumber: BigInt(to) }),
-  ]);
-  const events = logs.filter(log => !log.removed && log.args.message === GARC_MESSAGE).map(log => ({
+const verifyDeployment = unstable_cache(async () => {
+  await verifyGarcContract(GARC_CONTRACT_ADDRESS, client);
+  return true;
+}, [...cacheKey, "deployment"], { revalidate: 3600 });
+
+const countAt = unstable_cache(async (block: string) =>
+  (await client.readContract({ address: GARC_CONTRACT_ADDRESS, abi: garcAbi, functionName: "totalGreetings", blockNumber: BigInt(block) })).toString(),
+[...cacheKey, "finalized-counter"], { revalidate: false });
+
+const readRange = unstable_cache(async (from: string, to: string, before: string, after: string) => {
+  const logs = await client.getContractEvents({ address: GARC_CONTRACT_ADDRESS, abi: garcAbi, eventName: "Garc", fromBlock: BigInt(from), toBlock: BigInt(to), strict: true });
+  return verifyEventRange(logs.filter(log => !log.removed && log.args.message === DEPLOYED_GARC_EVENT_MESSAGE).map(log => ({
     wallet: log.args.wallet, walletCount: log.args.walletCount.toString(), totalCount: log.args.totalCount.toString(),
     timestamp: log.args.timestamp.toString(), transactionHash: log.transactionHash, logIndex: log.logIndex,
-  }));
-  const sequence = events.map(event => BigInt(event.totalCount)).sort((a, b) => a < b ? -1 : a > b ? 1 : 0);
-  if (BigInt(sequence.length) !== after - before || sequence.some((count, index) => count !== before + BigInt(index + 1))) {
-    throw new Error("Incomplete gARC history chunk. Please retry.");
-  }
-  return events;
-}
-// Finalized, complete historical chunks are reusable across Vercel instances; the open tail stays live.
-const readHistoricalEvents = unstable_cache(readEvents, ["garc-finalized-events-v1", String(arcMainnet.id), arcMainnet.rpcUrls.default.http[0]], { revalidate: false });
+  })), BigInt(before), BigInt(after));
+}, [...cacheKey, "finalized-events"], { revalidate: false });
 
-async function readSnapshot(): Promise<GarcLeaderboardSnapshot> {
-  const contract = GARC_CONTRACT_ADDRESS;
-  if (contract.toLowerCase() !== deployment.contractAddress.toLowerCase()) throw new Error("Leaderboard deployment configuration mismatch.");
-  await verifyGarcContract(contract, client);
+async function refreshCheckpoint(): Promise<GarcCheckpoint> {
+  await verifyDeployment();
   const block = await client.getBlock({ blockTag: "finalized" });
-  const start = BigInt(deployment.blockNumber);
-  if (block.number < start) throw new Error("gARC deployment is not finalized yet.");
-  const total = await client.readContract({ address: contract, abi: garcAbi, functionName: "totalGreetings", blockNumber: block.number });
-  const ranges: Array<{ from: bigint; to: bigint; complete: boolean }> = [];
-  for (let from = start; from <= block.number; from += CHUNK_SIZE) {
-    const end = from + CHUNK_SIZE - BigInt(1);
-    ranges.push({ from, to: end < block.number ? end : block.number, complete: end <= block.number });
-  }
-  const events: CachedEvent[] = [];
-  // Bound concurrency to avoid flooding the public RPC during an initial history scan.
-  for (let offset = 0; offset < ranges.length; offset += 2) {
-    const batch = await Promise.all(ranges.slice(offset, offset + 2).map(range =>
-      (range.complete ? readHistoricalEvents : readEvents)(contract, range.from.toString(), range.to.toString())));
-    events.push(...batch.flat());
-  }
-  return {
-    entries: rankGarcEvents(events.map(event => ({ ...event, walletCount: BigInt(event.walletCount), totalCount: BigInt(event.totalCount), timestamp: BigInt(event.timestamp) })), total),
-    totalGreetings: total.toString(), blockNumber: block.number.toString(), updatedAt: new Date().toISOString(),
+  const previous = latest;
+  if (block.number < BigInt(previous.blockNumber)) throw new Error("RPC is behind the verified gARC checkpoint.");
+  const total = await client.readContract({ address: GARC_CONTRACT_ADDRESS, abi: garcAbi, functionName: "totalGreetings", blockNumber: block.number });
+  const additional = await readChangedGarcEvents(BigInt(previous.blockNumber) + BigInt(1), block.number, BigInt(previous.totalGreetings), total, {
+    countAt: async middle => BigInt(await countAt(middle.toString())),
+    events: (from, to, before, after) => readRange(from.toString(), to.toString(), before.toString(), after.toString()),
+  });
+  const checkpoint: GarcCheckpoint = {
+    chainId: arcMainnet.id, contract: GARC_CONTRACT_ADDRESS, blockNumber: block.number.toString(), blockHash: block.hash,
+    totalGreetings: total.toString(), updatedAt: new Date().toISOString(), events: [...previous.events, ...additional],
   };
+  checkpointSnapshot(checkpoint);
+  if (BigInt(checkpoint.blockNumber) >= BigInt(latest.blockNumber)) latest = checkpoint;
+  return checkpoint;
 }
 
-export const getGarcLeaderboard = unstable_cache(readSnapshot, ["garc-leaderboard-v1", GARC_CONTRACT_ADDRESS, arcMainnet.rpcUrls.default.http[0]], { revalidate: 15 });
+const readCheckpoint = unstable_cache(async () => {
+  if (!pending) pending = refreshCheckpoint().finally(() => { pending = undefined; });
+  return pending;
+}, cacheKey, { revalidate: 60 });
+
+export async function getGarcLeaderboard() {
+  if (GARC_CONTRACT_ADDRESS.toLowerCase() !== bootstrap.contract.toLowerCase() || arcMainnet.id !== bootstrap.chainId) {
+    throw new Error("Leaderboard deployment configuration mismatch.");
+  }
+  try {
+    const checkpoint = await readCheckpoint();
+    if (BigInt(checkpoint.blockNumber) >= BigInt(latest.blockNumber)) latest = checkpoint;
+    return checkpointSnapshot(latest);
+  } catch {
+    console.warn("gARC refresh unavailable; serving the last completely verified checkpoint.");
+    return { ...checkpointSnapshot(latest), syncDelayed: true };
+  }
+}

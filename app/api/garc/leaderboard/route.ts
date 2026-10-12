@@ -5,7 +5,7 @@ import { getGarcLeaderboard } from "@/lib/garc-leaderboard-server";
 import { isAddress } from "viem";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
+export const maxDuration = 30;
 
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
@@ -15,7 +15,8 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Enter a valid page and a complete wallet address (0x followed by 40 hexadecimal characters)." }, { status: 400 });
   }
   try {
-    const data = paginateGarc(await getGarcLeaderboard(), page, wallet, GARC_CONTRACT_ADDRESS);
+    const snapshot = await getGarcLeaderboard();
+    const data = params.get("snapshot") === "1" ? snapshot : paginateGarc(snapshot, page, wallet, GARC_CONTRACT_ADDRESS);
     return NextResponse.json({ data }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     console.error("gARC leaderboard unavailable", error);

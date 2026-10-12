@@ -1,0 +1,90 @@
+{
+  "chainId": 5042,
+  "contract": "0x582d4b53f1b261f73a343fcc9137ba9772e6eb50",
+  "blockNumber": "25577415",
+  "blockHash": "0x9dc8e4a2d56af5be2eca2680c4c74ae4fb0629946662bd576942bd10b016f5d3",
+  "totalGreetings": "10",
+  "updatedAt": "2026-10-12T11:51:01.537Z",
+  "events": [
+    {
+      "wallet": "0x11315Cce8f009e4CB4234FFEAF2E860b84E5b0f6",
+      "walletCount": "1",
+      "totalCount": "1",
+      "timestamp": "1791729144",
+      "transactionHash": "0x4ed64102078008bc236bd97e1820454b67f1c335a949d0cff9a6ef94afbe2ed0",
+      "logIndex": 0
+    },
+    {
+      "wallet": "0x11315Cce8f009e4CB4234FFEAF2E860b84E5b0f6",
+      "walletCount": "2",
+      "totalCount": "2",
+      "timestamp": "1791729191",
+      "transactionHash": "0xdab59c402a1d67588733b694337487c6fdd51de2a94a425950198c2a0f5f12ac",
+      "logIndex": 2
+    },
+    {
+      "wallet": "0x11315Cce8f009e4CB4234FFEAF2E860b84E5b0f6",
+      "walletCount": "3",
+      "totalCount": "3",
+      "timestamp": "1791729212",
+      "transactionHash": "0x6c62350b2230e0e719652936a3a9aae65e873d1953746be32400bf2df2eea4b4",
+      "logIndex": 27
+    },
+    {
+      "wallet": "0x11315Cce8f009e4CB4234FFEAF2E860b84E5b0f6",
+      "walletCount": "4",
+      "totalCount": "4",
+      "timestamp": "1791729366",
+      "transactionHash": "0x7a6a138c792b5969f807471b78af40c5a06481849f0d41e07bb5614ca579f263",
+      "logIndex": 6
+    },
+    {
+      "wallet": "0x11315Cce8f009e4CB4234FFEAF2E860b84E5b0f6",
+      "walletCount": "5",
+      "totalCount": "5",
+      "timestamp": "1791735212",
+      "transactionHash": "0x6cf18434021ce8e76afc628f8f1bd54cde72837be6889ecc3beb8eaa5b63d668",
+      "logIndex": 4
+    },
+    {
+      "wallet": "0x11315Cce8f009e4CB4234FFEAF2E860b84E5b0f6",
+      "walletCount": "6",
+      "totalCount": "6",
+      "timestamp": "1791735236",
+      "transactionHash": "0x07fd160e18c01392aaa98d4e679aebf66bec1d9326d96c07f1d36b1ec9876eae",
+      "logIndex": 9
+    },
+    {
+      "wallet": "0x11315Cce8f009e4CB4234FFEAF2E860b84E5b0f6",
+      "walletCount": "7",
+      "totalCount": "7",
+      "timestamp": "1791735686",
+      "transactionHash": "0x66b14fc38f8c3ec0f3487fac5d5f0e8d433bbd39a68eba09bbee605e3b56a897",
+      "logIndex": 13
+    },
+    {
+      "wallet": "0x11315Cce8f009e4CB4234FFEAF2E860b84E5b0f6",
+      "walletCount": "8",
+      "totalCount": "8",
+      "timestamp": "1791736006",
+      "transactionHash": "0x14e7bd7f8c49cb6e4d8dc614b4273f45eee779f7b10dae15ef9a106e3fffaf70",
+      "logIndex": 20
+    },
+    {
+      "wallet": "0x11315Cce8f009e4CB4234FFEAF2E860b84E5b0f6",
+      "walletCount": "9",
+      "totalCount": "9",
+      "timestamp": "1791736624",
+      "transactionHash": "0x7ff3762957aeae972dd6b6ed9f1f03c000106a3de4bc1d6b736f1d0133f2aaef",
+      "logIndex": 5
+    },
+    {
+      "wallet": "0x11315Cce8f009e4CB4234FFEAF2E860b84E5b0f6",
+      "walletCount": "10",
+      "totalCount": "10",
+      "timestamp": "1791775773",
+      "transactionHash": "0xdc3da0f56a0eb1f1e8ac8765090377232deca0422e0ae882736e8fc54e5618d4",
+      "logIndex": 0
+    }
+  ]
+}
