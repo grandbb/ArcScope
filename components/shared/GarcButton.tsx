@@ -90,7 +90,7 @@ export function GarcButton() {
         </DialogHeader>
         <dl className="space-y-2 rounded-xl border bg-muted/30 p-4 text-sm">
           <div className="flex justify-between gap-3"><dt className="text-muted-foreground">Network</dt><dd>Arc Mainnet · 5042</dd></div>
-          <div className="flex justify-between gap-3"><dt className="text-muted-foreground">Message</dt><dd className="font-mono">{GARC_MESSAGE}</dd></div>
+          <div className="flex justify-between gap-3"><dt className="text-muted-foreground">Message</dt><dd className="font-mono">{contract ? GARC_MESSAGE : "gARC"}</dd></div>
           {(sentContract ?? contract) && <div><dt className="text-muted-foreground">Smart contract</dt><dd className="mt-1 break-all font-mono text-xs"><a className="text-primary underline" href={`${arcMainnet.blockExplorers.default.url}/address/${sentContract ?? contract}`} target="_blank" rel="noreferrer">{sentContract ?? contract}</a></dd></div>}
           {counts && <div className="flex justify-between gap-3"><dt className="text-muted-foreground">Greetings</dt><dd>You: {counts.wallet} · Total: {counts.total}</dd></div>}
         </dl>

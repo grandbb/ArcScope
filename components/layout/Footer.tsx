@@ -9,7 +9,7 @@ export function Footer() {
       <div className="flex items-center gap-3">
         <span aria-hidden="true" className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-primary/20 bg-primary/10 text-primary"><Code2 className="h-5 w-5" /></span>
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[.18em] text-muted-foreground">ArcScope · Developer credits</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[.18em] text-muted-foreground">AScope · Developer credits</p>
           <p className="mt-1 text-sm text-muted-foreground">Built by <span className="brand-text font-bold">Max Play</span></p>
         </div>
       </div>

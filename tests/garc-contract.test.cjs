@@ -36,7 +36,7 @@ test('compiled contract deploys, records real EVM events and per-wallet counts, 
       assert.equal(mined.status, 'success');
       const event = decodeEventLog({ abi: garcAbi, eventName: 'Garc', ...mined.logs[0] });
       assert.equal(event.args.wallet.toLowerCase(), account.toLowerCase());
-      assert.equal(event.args.message, 'gARC | ArcScope');
+      assert.equal(event.args.message, 'gARC | AScope');
       assert.equal(event.args.walletCount, await read('greetings', [account]));
       assert.equal(event.args.totalCount, await read('totalGreetings'));
       assert.equal(event.args.timestamp, await read('lastGreetingAt', [account]));

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.30;
 
-/// @notice ArcScope greetings on Arc Mainnet. No token, mint, or transfer approval.
+/// @notice AScope greetings on Arc Mainnet. No token, mint, or transfer approval.
 contract ArcGarc {
     uint256 public constant ARC_CHAIN_ID = 5042;
-    string public constant MESSAGE = "gARC | ArcScope";
+    string public constant MESSAGE = "gARC | AScope";
     address public deployer;
     uint256 public totalGreetings;
     mapping(address => uint256) public greetings;

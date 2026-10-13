@@ -6,7 +6,7 @@ import { WagmiProvider } from "wagmi";
 import { arcMainnet } from "@/lib/chains";
 
 const config = getDefaultConfig({
-  appName: "ArcScope",
+  appName: "AScope",
   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID?.trim() || "00000000000000000000000000000000",
   chains: [arcMainnet],
   ssr: true,

@@ -19,9 +19,9 @@ const address = '0x1111111111111111111111111111111111111111';
 const contract = '0x2222222222222222222222222222222222222222';
 const hash = `0x${'a'.repeat(64)}`;
 const client = () => ({ getChainId: async () => 5042, getCode: async () => artifact.garcRuntimeBytecode, estimateGas: async () => 80000n });
-const eventLog = () => ({ address: contract,
+const eventLog = (target = contract, message = garc.GARC_MESSAGE) => ({ address: target,
   topics: viem.encodeEventTopics({ abi: artifact.garcAbi, eventName: 'Garc', args: { wallet: address } }),
-  data: viem.encodeAbiParameters([{ type: 'uint256' }, { type: 'uint256' }, { type: 'uint256' }, { type: 'string' }], [1n, 1n, 123n, garc.GARC_MESSAGE]) });
+  data: viem.encodeAbiParameters([{ type: 'uint256' }, { type: 'uint256' }, { type: 'uint256' }, { type: 'string' }], [1n, 1n, 123n, message]) });
 
 test('zero-value greet call targets the verified contract on Arc Mainnet', async () => {
   const request = await garc.prepareGarc(address, contract, client());
@@ -39,9 +39,9 @@ test('wrong RPC network and unverified target code cannot reach estimation', asy
   rpc.getChainId = async () => 5042002;
   await assert.rejects(garc.prepareGarc(address, contract, rpc), /network mismatch/);
   rpc.getChainId = async () => 5042; rpc.getCode = async () => '0xef0100';
-  await assert.rejects(garc.prepareGarc(address, contract, rpc), /verified ArcScope/);
+  await assert.rejects(garc.prepareGarc(address, contract, rpc), /verified AScope/);
   rpc.getCode = async () => '0x';
-  await assert.rejects(garc.prepareGarc(address, contract, rpc), /verified ArcScope/);
+  await assert.rejects(garc.prepareGarc(address, contract, rpc), /verified AScope/);
   assert.equal(estimated, false);
 });
 
@@ -54,14 +54,16 @@ test('Remix metadata may differ but executable contract code must match', async 
   const changedMetadata = runtime.slice(0, -12) + '11' + runtime.slice(-10);
   await garc.verifyGarcContract(contract, { ...client(), getCode: async () => changedMetadata });
   const changedCode = '0x00' + runtime.slice(4);
-  await assert.rejects(garc.verifyGarcContract(contract, { ...client(), getCode: async () => changedCode }), /verified ArcScope/);
+  await assert.rejects(garc.verifyGarcContract(contract, { ...client(), getCode: async () => changedCode }), /verified AScope/);
 });
 
 test('owner Remix runtime is accepted while modified executable code is rejected', async () => {
   const runtime = artifact.garcRemixRuntimeBytecode;
-  await garc.verifyGarcContract(contract, { ...client(), getCode: async () => runtime });
-  await garc.verifyGarcContract(contract, { ...client(), getCode: async () => runtime.slice(0, -12) + '11' + runtime.slice(-10) });
-  await assert.rejects(garc.verifyGarcContract(contract, { ...client(), getCode: async () => '0x00' + runtime.slice(4) }), /verified ArcScope/);
+  const mainnet = garc.GARC_MAINNET_CONTRACT_ADDRESS;
+  await garc.verifyGarcContract(mainnet, { ...client(), getCode: async () => runtime });
+  await garc.verifyGarcContract(mainnet, { ...client(), getCode: async () => runtime.slice(0, -12) + '11' + runtime.slice(-10) });
+  await assert.rejects(garc.verifyGarcContract(mainnet, { ...client(), getCode: async () => '0x00' + runtime.slice(4) }), /verified AScope/);
+  await assert.rejects(garc.verifyGarcContract(contract, { ...client(), getCode: async () => runtime }), /verified AScope/);
 });
 
 test('cancelled/replaced transactions cannot count as confirmed gARC', () => {
@@ -84,7 +86,8 @@ function harness(options = {}) {
     '@rainbow-me/rainbowkit': { useConnectModal: () => ({ openConnectModal: () => events.push('connect') }) },
     wagmi: {
       useAccount: () => ({ address, isConnected: true, chainId: options.chainId ?? 5042 }),
-      usePublicClient: () => options.client ?? client(),
+      usePublicClient: () => options.client ?? (options.useMainnetContract
+        ? { ...client(), getCode: async () => artifact.garcRemixRuntimeBytecode } : client()),
       useSwitchChain: () => ({ switchChainAsync: async args => { events.push(['switch', args]); if (options.rejectSwitch) throw Error('User rejected switch'); } }),
       useSendTransaction: () => ({ sendTransactionAsync: async request => { events.push(['send', request]); if (options.rejectSend) throw Error('User rejected transaction'); return hash; } }),
       useWaitForTransactionReceipt: args => { receiptOptions = args; return { data: args.hash ? options.receipt : undefined, isError: !!args.hash && !!options.receiptError, refetch: async () => events.push('refetch') }; },
@@ -166,6 +169,14 @@ test('receipt proof checks the emitting contract, wallet, and fixed message', ()
   assert.equal(garc.hasGarcEvent([eventLog()], contract, contract), false);
   assert.equal(garc.hasGarcEvent([{ ...eventLog(), address }], address, contract), false);
   assert.equal(garc.hasGarcEvent([{ ...eventLog(), data: '0x' }], address, contract), false);
+});
+
+test('existing mainnet contract keeps its immutable greeting while new contracts use AScope', () => {
+  const mainnet = garc.GARC_MAINNET_CONTRACT_ADDRESS;
+  assert.equal(garc.garcMessageForContract(mainnet), garc.GARC_MAINNET_MESSAGE);
+  assert.equal(garc.garcMessageForContract(contract), garc.GARC_MESSAGE);
+  assert.equal(garc.hasGarcEvent([eventLog(mainnet, garc.GARC_MAINNET_MESSAGE)], address, mainnet), true);
+  assert.equal(garc.hasGarcEvent([eventLog(mainnet, garc.GARC_MESSAGE)], address, mainnet), false);
 });
 
 test('confirmation failure keeps the submitted hash and prevents another send', async () => {

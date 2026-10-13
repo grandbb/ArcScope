@@ -1,8 +1,8 @@
-# ArcScope
+# AScope
 
 [![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js)](https://nextjs.org/) [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript)](https://www.typescriptlang.org/) [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v3-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
 
-ArcScope is an Arc Mainnet Web3 workspace that combines a personal portfolio with real-time on-chain analytics. Every wallet, explorer, gas, and network view uses Arc Mainnet exclusively.
+AScope is an Arc Mainnet Web3 workspace that combines a personal portfolio with real-time on-chain analytics. Every wallet, explorer, gas, and network view uses Arc Mainnet exclusively.
 
 ## Screenshots
 
@@ -13,14 +13,14 @@ The current interface is configured exclusively for Arc Mainnet, including nativ
 <table>
   <tr>
     <td width="36%" align="center">
-      <img src="./public/screenshots/arcscope-logo.png" alt="ArcScope neon Arc identity" width="320" />
+      <img src="./public/ascope-logo.png" alt="AScope neon Arc identity" width="320" />
     </td>
     <td width="64%" align="center">
-      <img src="./public/og-image.png" alt="ArcScope Arc Mainnet product preview" width="760" />
+      <img src="./public/og.png" alt="AScope Arc Mainnet product preview" width="760" />
     </td>
   </tr>
   <tr>
-    <td align="center"><strong>ArcScope identity</strong><br />Arc-inspired on-chain intelligence</td>
+    <td align="center"><strong>AScope identity</strong><br />Arc-inspired on-chain intelligence</td>
     <td align="center"><strong>Arc Mainnet workspace</strong><br />Portfolio clarity and real-time network analytics</td>
   </tr>
 </table>
@@ -59,7 +59,7 @@ The current interface is configured exclusively for Arc Mainnet, including nativ
 
    ```bash
    git clone <your-repository-url>
-   cd arcscope
+   cd <cloned-directory>
    ```
 
 2. Install dependencies.
@@ -86,7 +86,7 @@ The current interface is configured exclusively for Arc Mainnet, including nativ
 
 ## API key setup
 
-- [Arc](https://docs.arc.io/arc/references/connect-to-arc): ArcScope uses the official Arc Mainnet HTTP endpoint `https://rpc.mainnet.arc.io` by default, with explorer links at `https://explorer.arc.io`. Override them with `NEXT_PUBLIC_ARC_RPC_URL` and `NEXT_PUBLIC_ARC_WS_URL` when using a managed provider.
+- [Arc](https://docs.arc.io/arc/references/connect-to-arc): AScope uses the official Arc Mainnet HTTP endpoint `https://rpc.mainnet.arc.io` by default, with explorer links at `https://explorer.arc.io`. Override them with `NEXT_PUBLIC_ARC_RPC_URL` and `NEXT_PUBLIC_ARC_WS_URL` when using a managed provider.
 - [WalletConnect Cloud](https://cloud.walletconnect.com/): create a project and set `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` so RainbowKit can initialize production wallet connectors.
 - [CoinGecko](https://www.coingecko.com/en/api): the public API works for development; set `NEXT_PUBLIC_COINGECKO_API_KEY` if your plan provides a key and higher rate limits.
 
@@ -96,13 +96,13 @@ Some analytics, NFT, DeFi, transaction-history, and market views still use demon
 
 ## gARC transactions
 
-The top-bar gARC button calls `greet()` on the ArcGarc smart contract on Arc Mainnet (5042). Each call records `gARC | ArcScope` in a `Garc` event and increases the caller's greeting count, total count, and latest greeting time. It transfers 0 native USDC; the wallet shows the network gas fee before signing. The contract has no minting, token approvals, admin actions, or upgrade functions.
+The top-bar gARC button calls `greet()` on the ArcGarc smart contract on Arc Mainnet (5042). The currently deployed contract records its original immutable `gARC` message; new deployments from this source record `gARC | AScope`. Each call records a greeting in a `Garc` event and increases the caller's greeting count, total count, and latest greeting time. It transfers 0 native USDC; the wallet shows the network gas fee before signing. The contract has no minting, token approvals, admin actions, or upgrade functions.
 
-The shared mainnet contract is [`0x582d4b53f1b261f73a343fcc9137ba9772e6eb50`](https://explorer.arc.io/address/0x582d4b53f1b261f73a343fcc9137ba9772e6eb50), created by `0x11315Cce8f009e4CB4234FFEAF2E860b84E5b0f6` in [deployment transaction](https://explorer.arc.io/tx/0x6b58e60efa782eec60534b766175610f4d50f2b1179e754956180de7955512b0). The receipt succeeded on chain 5042 with zero value. Its executable runtime matches the same Solidity 0.8.30 source compiled without optimization for Cancun/Prague. Runtime verification accepts this known variant and the optimized Paris build; it still rejects any changed executable code. `NEXT_PUBLIC_GARC_CONTRACT_ADDRESS` can override the shared default.
+The shared mainnet contract is [`0x582d4b53f1b261f73a343fcc9137ba9772e6eb50`](https://explorer.arc.io/address/0x582d4b53f1b261f73a343fcc9137ba9772e6eb50), created by `0x11315Cce8f009e4CB4234FFEAF2E860b84E5b0f6` in [deployment transaction](https://explorer.arc.io/tx/0x6b58e60efa782eec60534b766175610f4d50f2b1179e754956180de7955512b0). The receipt succeeded on chain 5042 with zero value. Its executable runtime matches the preserved historical Solidity 0.8.30 source compiled without optimization for Cancun/Prague. Runtime verification accepts this known variant and the new optimized Paris build; it still rejects any changed executable code. `NEXT_PUBLIC_GARC_CONTRACT_ADDRESS` can override the shared default.
 
 Deploy from `/garc/deploy`: connect your wallet (WalletConnect supports a mobile QR scan when configured), approve deployment, and wait for the mined receipt and exact runtime-code verification. The deploying wallet is recorded as `deployer`. Source and standard compiler input are available under `/contracts/`. New deployments use Solidity 0.8.30, optimizer 200 runs, EVM Paris. The constructor rejects other chain IDs. Verified addresses are saved in this browser for reference. The gARC button uses the shared owner contract; set `NEXT_PUBLIC_GARC_CONTRACT_ADDRESS` and redeploy the website to change it for all visitors. An existing address can also be checked against known runtime code.
 
-Alternatively, open the source in Remix, compile with the same compiler/optimizer/EVM settings, connect a browser wallet, verify that Deploy & Run reports chain 5042, and deploy with Value 0. Remix's current WalletConnect network configuration does not include Arc, so its mobile QR flow cannot be relied on for Arc deployment. Mobile QR deployment from ArcScope requires its own valid Reown project ID with the production domain allowed. Import the resulting address at `/garc/deploy`. Remix can change the source path in compiler metadata; verification compares executable runtime code after removing the Solidity CBOR metadata trailer.
+Alternatively, open the source in Remix, compile with the same compiler/optimizer/EVM settings, connect a browser wallet, verify that Deploy & Run reports chain 5042, and deploy with Value 0. Remix's current WalletConnect network configuration does not include Arc, so its mobile QR flow cannot be relied on for Arc deployment. Mobile QR deployment from AScope requires its own valid Reown project ID with the production domain allowed. Import the resulting address at `/garc/deploy`. Remix can change the source path in compiler metadata; verification compares executable runtime code after removing the Solidity CBOR metadata trailer.
 
 Before sending, the app verifies the RPC network and compiled executable runtime bytecode, then estimates gas. Confirmation requires a successful receipt and the expected `Garc` event from the selected contract and wallet. Cancelled replacements do not count. If receipt fetching fails, the submitted hash remains visible and another send stays disabled until resolved.
 
@@ -129,7 +129,7 @@ public/                Chain, token, NFT fallback, and social-preview assets
 
 ## Deployment
 
-ArcScope is ready for Vercel. Import the repository at [vercel.com/new](https://vercel.com/new), add the variables from `.env.example`, and deploy. Set `NEXT_PUBLIC_APP_URL` to the production origin so Open Graph images resolve absolutely.
+AScope is ready for Vercel. Import the repository at [vercel.com/new](https://vercel.com/new), add the variables from `.env.example`, and deploy. Set `NEXT_PUBLIC_APP_URL` to the production origin so Open Graph images resolve absolutely.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone)
 
@@ -154,7 +154,7 @@ Released under the MIT License. See [LICENSE](./LICENSE).
 
 ### gARC leaderboard
 
-`/garc/leaderboard` ranks all wallets on the owner-deployed ArcScope gARC contract by confirmed greeting count, with 100 wallets per page. Equal counts use the first greeting as the tie-breaker. Wallet search returns the global rank and page even when the wallet is outside the current page. The confirmed gARC action links to this page, and New gARC remains available for another greeting.
+`/garc/leaderboard` ranks all wallets on the owner-deployed AScope gARC contract by confirmed greeting count, with 100 wallets per page. Equal counts use the first greeting as the tie-breaker. Wallet search returns the global rank and page even when the wallet is outside the current page. The confirmed gARC action links to this page, and New gARC remains available for another greeting.
 
 `/api/garc/leaderboard?page=1&wallet=0x...` reads finalized Garc events from deployment block 25424923 on Arc Mainnet. RPC history is fetched in 5,000-block chunks with bounded concurrency; complete finalized chunks use the Next.js data cache. Snapshots refresh every 15 seconds. The global event sequence and each wallet count must agree with `totalGreetings()` at the same block before any rankings are returned. RPC failures or incomplete history show a retry error rather than partial rankings. If overriding the shared contract address, the deployment metadata must also match.
 
