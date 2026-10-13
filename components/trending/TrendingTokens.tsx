@@ -5,9 +5,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { EmptyState } from "@/components/shared/EmptyState";
 export function TrendingTokens({ tokens, error, onRetry }: { tokens: TrendingToken[]; error?: boolean; onRetry?: () => void }) {
   if (error) return <p role="alert" className="rounded-xl border p-5 text-sm text-amber-500">Arc market data unavailable. <button onClick={onRetry} className="underline">Retry</button></p>;
-  if (!tokens.length) return <EmptyState title="No qualifying Arc pools" description="No tokens with sufficient liquidity and price-change data were returned by the provider." />;
+  if (!tokens.length) return <EmptyState title="No qualifying Arc USDC pools" description="No tokens with sufficient liquidity and price-change data were returned by DEX Screener." />;
   return <div className="glass overflow-hidden rounded-2xl">
-    <p className="border-b p-4 text-xs leading-relaxed text-muted-foreground">Source: <a href="https://www.geckoterminal.com/arc/pools" target="_blank" rel="noreferrer" className="underline">GeckoTerminal</a> · Ranked by absolute 24h price change among returned top Arc pools with ≥$10,000 liquidity. One representative pool per token; volume is pool-specific. Refreshes every 60s. — means not reported.</p>
+    <p className="border-b p-4 text-xs leading-relaxed text-muted-foreground">Source: <a href="https://dexscreener.com/arc" target="_blank" rel="noreferrer" className="underline">DEX Screener</a> · Ranked by absolute 24h price change among returned Arc USDC pools with ≥$10,000 liquidity. One representative pool per token; volume is pool-specific. Refreshes every 60s. — means not reported.</p>
     <div className="overflow-x-auto"><Table className="min-w-[850px]"><TableHeader><TableRow>{["Rank", "Token / source pool", "Price", "1h", "24h", "7d", "Pool volume · 24h", "Market cap"].map(label => <TableHead key={label}>{label}</TableHead>)}</TableRow></TableHeader>
       <TableBody>{tokens.map(token => <TableRow key={token.address}>
         <TableCell className="font-mono">{String(token.rank).padStart(2, "0")}</TableCell>
