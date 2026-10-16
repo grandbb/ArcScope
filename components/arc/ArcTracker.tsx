@@ -1,0 +1,46 @@
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { ExternalLink, RefreshCw, Coins } from "lucide-react";
+import type { ArcTrackerSnapshot } from "@/lib/ascope-arc-tracker";
+
+const scan = "https://arc.etherscan.io";
+const contract = "0xa12cd81d0f9988e3d60c4b6a0d52d368ef3c788d";
+const colors = ["#a78bfa", "#22d3ee", "#f472b6", "#60a5fa", "#34d399", "#fbbf24", "#818cf8", "#fb923c", "#2dd4bf", "#e879f9", "#64748b"];
+const num = (value: number) => value.toLocaleString("en-US", { maximumFractionDigits: 6 });
+const short = (address: string) => `${address.slice(0, 8)}…${address.slice(-6)}`;
+function AddressLink({ address }: { address: string }) {
+  return <a href={`${scan}/address/${address}`} target="_blank" rel="noreferrer" title={address} className="font-mono text-xs text-cyan-400 hover:underline">{short(address)} ↗</a>;
+}
+export function ArcTracker() {
+  const query = useQuery<{ data: ArcTrackerSnapshot | null; delayed: boolean }>({
+    queryKey: ["ascope-arc-tracker"], queryFn: async () => {
+      const response = await fetch("/api/arc-tracker");
+      if (!response.ok) throw Error("ARC data is temporarily unavailable.");
+      return response.json();
+    }, staleTime: 300000, refetchInterval: 300000, retry: 1,
+  });
+  const data = query.data?.data;
+  const chart = data ? [...data.holders.map((h, i) => ({ name: h.label ?? `#${i + 1} ${short(h.address)}`, value: h.balance })), ...(data.other > 0 ? [{ name: "Other holders", value: data.other }] : [])] : [];
+  return <div className="space-y-6 pb-20 md:pb-4">
+    <header className="flex flex-wrap items-start justify-between gap-4">
+      <div><p className="mb-2 text-xs font-semibold uppercase tracking-[.2em] text-primary">Explore · Arc Mainnet</p><h1 className="flex items-center gap-3 text-3xl font-bold"><Coins className="text-primary" /> ARC Tracker</h1><p className="mt-2 text-sm text-muted-foreground">Token supply, ownership distribution and the latest transfers.</p></div>
+      <button onClick={() => query.refetch()} disabled={query.isFetching} className="flex items-center gap-2 rounded-xl border px-4 py-2 text-sm disabled:opacity-50"><RefreshCw className={`h-4 w-4 ${query.isFetching ? "animate-spin" : ""}`} />Refresh</button>
+    </header>
+    <a href={`${scan}/token/${contract}`} target="_blank" rel="noreferrer" className="flex w-fit max-w-full items-center gap-2 break-all rounded-xl border bg-card px-4 py-3 font-mono text-xs text-muted-foreground">{contract}<ExternalLink className="h-4 w-4 shrink-0" /></a>
+    {query.isPending && <div role="status" className="rounded-2xl border bg-card p-10 text-center text-muted-foreground">Loading ARC supply, holders and transfers…</div>}
+    {(query.isError || query.data?.delayed || (!query.isPending && !data)) && <p role="alert" className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm text-amber-400">{data ? "Updates are delayed. Showing the last available snapshot below." : "ARC explorer data is temporarily unavailable. Please retry or open ArcScan using the contract link above."}</p>}
+    {data && <>
+      <div className="grid gap-4 sm:grid-cols-3">{[["Total supply", `${num(data.supply)} ARC`], ["Holder addresses", num(data.holderCount)], ["Top 10 concentration", `${(100 - data.other / data.supply * 100).toFixed(2)}%`]].map(([label, value]) => <div key={label} className="rounded-2xl border bg-card p-5"><p className="text-sm text-muted-foreground">{label}</p><p className="mt-3 break-words text-2xl font-bold tracking-tight">{value}</p></div>)}</div>
+      <section className="rounded-2xl border bg-card p-5 md:p-6"><h2 className="text-xl font-semibold">Who holds ARC?</h2><p className="mt-1 text-sm text-muted-foreground">Top 10 addresses as a share of total supply. Other holders are grouped together.</p>
+        <div className="mt-4 grid items-center gap-6 lg:grid-cols-[.8fr_1.2fr]">
+          <div role="img" aria-label="ARC holder distribution. Exact balances and percentages are listed in the adjacent table." className="h-80 min-w-0"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={chart} dataKey="value" nameKey="name" innerRadius="54%" outerRadius="83%" stroke="none" paddingAngle={1}>{chart.map((item, i) => <Cell key={item.name} fill={colors[i]} />)}</Pie><Tooltip formatter={(value: number) => [`${num(value)} ARC`, "Balance"]} contentStyle={{ background: "#131724", border: "1px solid #334155", borderRadius: 12, color: "#fff" }} /></PieChart></ResponsiveContainer></div>
+          <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="border-b text-left text-xs text-muted-foreground"><th className="py-3">Holder</th><th className="py-3 text-right">Balance (ARC)</th><th className="py-3 pl-4 text-right">Supply %</th></tr></thead><tbody>{data.holders.map((h, i) => <tr key={h.address} className="border-b border-white/5"><td className="py-3"><span className="mr-2 inline-block h-2 w-2 rounded-full" style={{ background: colors[i] }} /><span className="mr-2 text-xs text-muted-foreground">{i + 1}</span><AddressLink address={h.address} />{h.label && <div className="mt-1 text-xs text-muted-foreground">{h.label}</div>}</td><td className="py-3 text-right tabular-nums">{num(h.balance)}</td><td className="py-3 pl-4 text-right tabular-nums">{h.share.toFixed(4)}%</td></tr>)}{data.other > 0 && <tr><td className="pt-3 text-muted-foreground">● Other holders</td><td className="pt-3 text-right">{num(data.other)}</td><td className="pl-4 pt-3 text-right">{(data.other / data.supply * 100).toFixed(4)}%</td></tr>}</tbody></table></div>
+        </div><p className="mt-5 text-xs leading-relaxed text-muted-foreground">Addresses are not necessarily individual people. Names are shown only when supplied by ArcScan; an unlabeled address has no verified owner identity here. Total supply is not circulating supply.</p>
+      </section>
+      <section className="rounded-2xl border bg-card p-5 md:p-6"><h2 className="text-xl font-semibold">Latest 10 transfers</h2><p className="mt-1 text-sm text-muted-foreground">Most recent ARC token transfers indexed by ArcScan, newest first.</p><div className="mt-4 overflow-x-auto"><table className="w-full whitespace-nowrap text-sm"><thead><tr className="border-b text-left text-xs text-muted-foreground">{["Time (UTC)", "From", "To", "Amount (ARC)", "Transaction"].map(label => <th className="px-3 py-3 first:pl-0" key={label}>{label}</th>)}</tr></thead><tbody>{data.transfers.map((tx, i) => <tr key={`${tx.hash}:${i}`} className="border-b border-white/5"><td className="py-4 pr-3 text-xs text-muted-foreground">{new Date(tx.timestamp).toISOString().replace("T", " ").slice(0, 19)}</td><td className="px-3"><AddressLink address={tx.from} /></td><td className="px-3"><AddressLink address={tx.to} /></td><td className="px-3 tabular-nums">{num(tx.amount)}</td><td className="px-3"><a className="text-xs text-primary hover:underline" href={`${scan}/tx/${tx.hash}`} target="_blank" rel="noreferrer">{short(tx.hash)} ↗</a></td></tr>)}</tbody></table></div></section>
+      <p className="text-xs leading-relaxed text-muted-foreground">Source: <a className="text-primary hover:underline" href={`${scan}/token/${contract}`} target="_blank" rel="noreferrer">ArcScan</a> · Retrieved {new Date(data.updatedAt).toISOString().replace("T", " ").slice(0, 19)} UTC · Shared cache refreshes every 5 minutes. Explorer indexing may lag behind the chain.</p>
+    </>}
+  </div>;
+}
