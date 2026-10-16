@@ -33,7 +33,7 @@ export function TokenAllocation() {
         <span className="rounded-full border border-emerald-400/20 bg-emerald-400/5 px-3 py-1.5 text-xs font-medium text-emerald-400">Initial allocation</span>
       </div>
 
-      <div className="relative mt-6 grid items-center gap-6 xl:grid-cols-[.85fr_1.15fr] xl:gap-10">
+      <div className="relative mt-6 grid items-center gap-6 md:grid-cols-[.85fr_1.15fr] xl:gap-10">
         <div className="relative mx-auto h-72 w-full max-w-sm sm:h-80">
           <div role="img" aria-label="Initial ARC token allocation: Ecosystem 60%, Circle 25%, Long-Term Reserve 15%." className="h-full w-full">
             <ResponsiveContainer width="100%" height="100%">
