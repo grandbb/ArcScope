@@ -3,6 +3,14 @@
 `/arc-tracker` is a separate Explore menu entry. It tracks only ARC contract
 `0xa12cd81d0f9988e3d60c4b6a0d52d368ef3c788d` on Arc Mainnet.
 
+The Token allocation section presents the indicative initial allocation from the
+[ARC whitepaper, page 10](https://6778953.fs1.hubspotusercontent-na1.net/hubfs/6778953/PDFs/arc_whitepaper.pdf#page=10):
+60% Ecosystem (6 billion ARC), 25% Circle (2.5 billion ARC), and 15% Long-Term
+Reserve (1.5 billion ARC), calculated from the initial 10 billion supply.
+These categories are separate from observed wallet holdings. The section retains
+the whitepaper's qualification that exact unlock/release schedules are to be
+announced; it does not infer wallet identities or circulating supply from allocations.
+
 The server reads ArcScan's public token summary and its holders/transfer tables.
 It maintains the anonymous explorer session for the related table requests;
 cookies stay on the server. No API credentials or user login are required.

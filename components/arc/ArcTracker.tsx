@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { ExternalLink, RefreshCw, Coins } from "lucide-react";
 import type { ArcTrackerSnapshot } from "@/lib/ascope-arc-tracker";
+import { TokenAllocation } from "./TokenAllocation";
 
 const scan = "https://arc.etherscan.io";
 const contract = "0xa12cd81d0f9988e3d60c4b6a0d52d368ef3c788d";
@@ -53,6 +54,7 @@ export function ArcTracker() {
     {(query.isError || query.data?.delayed || (!query.isPending && !data)) && <p role="alert" className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm text-amber-400">{data ? "Updates are delayed. Showing the last available snapshot below." : "ARC explorer data is temporarily unavailable. Please retry or open ArcScan using the contract link above."}</p>}
     {data && <>
       <div className="grid gap-4 sm:grid-cols-3">{[["Total supply", `${num(data.supply)} ARC`], ["Holder addresses", num(data.holderCount)], ["Top 10 concentration", `${(100 - data.other / data.supply * 100).toFixed(2)}%`]].map(([label, value]) => <div key={label} className="rounded-2xl border bg-card p-5"><p className="text-sm text-muted-foreground">{label}</p><p className="mt-3 break-words text-2xl font-bold tracking-tight">{value}</p></div>)}</div>
+      <TokenAllocation />
       <section className="rounded-2xl border bg-card p-5 md:p-6"><h2 className="text-xl font-semibold">Who holds ARC?</h2><p className="mt-1 text-sm text-muted-foreground">Top 10 addresses as a share of total supply. Other holders are grouped together.</p>
         <div className="mt-4 grid items-center gap-6 lg:grid-cols-[.8fr_1.2fr]">
           <div role="img" aria-label="ARC holder distribution. Exact balances and percentages are listed in the adjacent table." className="h-80 min-w-0"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={chart} dataKey="value" nameKey="name" innerRadius="54%" outerRadius="83%" stroke="none" paddingAngle={1}>{chart.map((item, i) => <Cell key={item.name} fill={colors[i]} />)}</Pie><Tooltip formatter={(value: number) => [`${num(value)} ARC`, "Balance"]} contentStyle={{ background: "#131724", border: "1px solid #64748b", borderRadius: 12, padding: "12px 16px", fontSize: 14, color: "#f8fafc", boxShadow: "0 8px 24px rgba(0, 0, 0, 0.35)" }} itemStyle={{ color: "#f8fafc", fontWeight: 600 }} labelStyle={{ color: "#f8fafc" }} /></PieChart></ResponsiveContainer></div>
