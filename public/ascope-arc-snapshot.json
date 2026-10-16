@@ -60,7 +60,7 @@
       "address": "0x67e2a7ad4e9c2cfe63a265a053f87fb675ac1269",
       "balance": 534999871,
       "share": 5.34999871,
-      "label": null
+      "label": "FBO ARC presale"
     }
   ],
   "other": 285000129,
@@ -72,7 +72,7 @@
       "amount": 25163231.45,
       "timestamp": 1792018270000,
       "block": 25995862,
-      "fromLabel": null,
+      "fromLabel": "FBO ARC presale",
       "toLabel": null
     },
     {
@@ -82,7 +82,7 @@
       "amount": 24502607.38,
       "timestamp": 1792018256000,
       "block": 25995835,
-      "fromLabel": null,
+      "fromLabel": "FBO ARC presale",
       "toLabel": null
     },
     {
@@ -92,7 +92,7 @@
       "amount": 25738194.61,
       "timestamp": 1792018245000,
       "block": 25995813,
-      "fromLabel": null,
+      "fromLabel": "FBO ARC presale",
       "toLabel": null
     },
     {
@@ -102,7 +102,7 @@
       "amount": 23641865.93,
       "timestamp": 1792018227000,
       "block": 25995778,
-      "fromLabel": null,
+      "fromLabel": "FBO ARC presale",
       "toLabel": null
     },
     {
@@ -112,7 +112,7 @@
       "amount": 26283509.06,
       "timestamp": 1792018208000,
       "block": 25995740,
-      "fromLabel": null,
+      "fromLabel": "FBO ARC presale",
       "toLabel": null
     },
     {
@@ -122,7 +122,7 @@
       "amount": 24957136.72,
       "timestamp": 1792018189000,
       "block": 25995703,
-      "fromLabel": null,
+      "fromLabel": "FBO ARC presale",
       "toLabel": null
     },
     {
@@ -132,7 +132,7 @@
       "amount": 25412698.29,
       "timestamp": 1792018169000,
       "block": 25995663,
-      "fromLabel": null,
+      "fromLabel": "FBO ARC presale",
       "toLabel": null
     },
     {
@@ -142,7 +142,7 @@
       "amount": 23876280.55,
       "timestamp": 1792018140000,
       "block": 25995606,
-      "fromLabel": null,
+      "fromLabel": "FBO ARC presale",
       "toLabel": null
     },
     {
@@ -152,7 +152,7 @@
       "amount": 26105923.84,
       "timestamp": 1792018127000,
       "block": 25995580,
-      "fromLabel": null,
+      "fromLabel": "FBO ARC presale",
       "toLabel": null
     },
     {
@@ -162,7 +162,7 @@
       "amount": 24318452.17,
       "timestamp": 1792018114000,
       "block": 25995555,
-      "fromLabel": null,
+      "fromLabel": "FBO ARC presale",
       "toLabel": null
     }
   ],

@@ -1,4 +1,5 @@
 import { load } from "cheerio";
+import publicNames from "../public/ascope-arc-address-labels.json";
 
 export const ARC_TOKEN = "0xa12cd81d0f9988e3d60c4b6a0d52d368ef3c788d";
 export const ARC_SCAN = "https://arc.etherscan.io";
@@ -44,7 +45,8 @@ export function parseArcTracker(summary: string, holderHtml: string, transferHtm
   });
   if (transfers.length !== 10 || transfers.some((item, i) => i > 0 && item.block > transfers[i - 1].block)) throw Error("Incomplete latest transfers");
   // A name observed in either table applies to that same address in both tables.
-  const labels = new Map<string, string>();
+  // Names observed on explorer.arc.io supplement ArcScan's unnamed addresses.
+  const labels = new Map<string, string>(Object.entries(publicNames.labels));
   for (const holder of holders) if (holder.label) labels.set(holder.address.toLowerCase(), holder.label);
   for (const tx of transfers) {
     if (tx.fromLabel) labels.set(tx.from.toLowerCase(), tx.fromLabel);

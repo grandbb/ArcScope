@@ -29,7 +29,7 @@ const cached = unstable_cache(async () => {
     console.warn("ARC tracker refresh failed:", error instanceof Error ? error.message : "Unknown source error");
     return { data: null, delayed: true };
   }
-}, ["ascope-arc-tracker-v4"], { revalidate: 300 });
+}, ["ascope-arc-tracker-v5"], { revalidate: 300 });
 export async function getArcTracker() {
   const result = await cached();
   if (result.data) lastGood = result.data;
