@@ -30,3 +30,29 @@ test('rejects a different token, invalid balances and invalid transfer destinati
   assert.throws(() => parse(fixtures[0], fixtures[1].replace('title="1,500,000,000"', 'title="-1"'), fixtures[2]));
   assert.throws(() => parse(fixtures[0], fixtures[1], fixtures[2].replace('a=0xea7705a14aeba2633c3aa33646ed83dd2cd7bbd0', 'a=bad')));
 });
+test('reads full public names and reuses them across holders and transfer endpoints', () => {
+  const sender = '0x67e2a7ad4e9c2cfe63a265a053f87fb675ac1269';
+  const recipient = '0xea7705a14aeba2633c3aa33646ed83dd2cd7bbd0';
+  // Synthetic names test parser behavior; they are not real owner attributions.
+  const holders = fixtures[1].replace(`title="${sender}"`, `title="Example Treasury (${sender})"`);
+  const transfers = fixtures[2].replace(`title="${recipient}"`, `title="Example Custodian (${recipient})"`);
+  const data = parse(fixtures[0], holders, transfers);
+  assert.equal(data.holders[9].label, 'Example Treasury');
+  assert.ok(data.transfers.every(tx => tx.fromLabel === 'Example Treasury'));
+  assert.equal(data.transfers[0].toLabel, 'Example Custodian');
+  assert.equal(data.transfers[1].toLabel, null);
+  assert.equal(data.transfers[0].from, sender);
+  assert.equal(data.transfers[0].to, recipient);
+});
+test('a public name in transfers also labels its holder and repeated sender', () => {
+  const sender = '0x67e2a7ad4e9c2cfe63a265a053f87fb675ac1269';
+  const transfers = fixtures[2].replace(`title="${sender}"`, 'title="Example Distribution"');
+  const data = parse(fixtures[0], fixtures[1], transfers);
+  assert.equal(data.holders[9].label, 'Example Distribution');
+  assert.ok(data.transfers.every(tx => tx.fromLabel === 'Example Distribution'));
+});
+test('unlabeled and shortened addresses never become public names', () => {
+  const data = parse(...fixtures);
+  assert.ok(data.holders.every(h => h.label === null));
+  assert.ok(data.transfers.every(tx => tx.fromLabel === null && tx.toLabel === null));
+});
