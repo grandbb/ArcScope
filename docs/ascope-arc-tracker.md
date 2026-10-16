@@ -12,7 +12,8 @@ transfer order and all ten transfer rows. Source markup changes fail closed.
 Next Data Cache stores each result, including unsuccessful refreshes, for five
 minutes. The route also uses a shared CDN cache; requests within one process
 are coalesced. A warm process can retain its last successful snapshot during
-an outage, but a cold process has no persistent last-good fallback. The UI
+an outage; cold processes use the bundled public ArcScan snapshot in
+`public/ascope-arc-snapshot.json`, captured during release validation. The UI
 shows unavailability or a delayed-data notice and the retrieval timestamp.
 The public explorer has no availability guarantee; if automated requests are
 restricted, replace this adapter with a licensed indexer rather than bypassing

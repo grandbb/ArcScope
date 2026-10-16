@@ -1,7 +1,8 @@
 import { unstable_cache } from "next/cache";
 import { ARC_SOURCE, ARC_SCAN, ARC_TOKEN, parseArcTracker, type ArcTrackerSnapshot } from "./ascope-arc-tracker";
+import bootstrap from "@/public/ascope-arc-snapshot.json";
 
-let lastGood: ArcTrackerSnapshot | null = null;
+let lastGood: ArcTrackerSnapshot = bootstrap;
 let pending: Promise<ArcTrackerSnapshot> | null = null;
 async function refresh() {
   const response = await fetch(ARC_SOURCE, { cache: "no-store", signal: AbortSignal.timeout(10000) });
@@ -24,8 +25,11 @@ const cached = unstable_cache(async () => {
   try {
     pending ??= refresh().finally(() => { pending = null; });
     return { data: await pending, delayed: false };
-  } catch { return { data: null, delayed: true }; }
-}, ["ascope-arc-tracker-v1"], { revalidate: 300 });
+  } catch (error) {
+    console.warn("ARC tracker refresh failed:", error instanceof Error ? error.message : "Unknown source error");
+    return { data: null, delayed: true };
+  }
+}, ["ascope-arc-tracker-v3"], { revalidate: 300 });
 export async function getArcTracker() {
   const result = await cached();
   if (result.data) lastGood = result.data;
