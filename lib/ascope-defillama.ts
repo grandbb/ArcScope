@@ -4,7 +4,8 @@ export function parseTvlHistory(value: unknown) {
   if (!Array.isArray(value)) throw Error("TVL history unavailable");
   const points = value.filter(p => Number.isFinite(p?.date) && metricNumber(p?.tvl) !== null).map(p => ({ date: Number(p.date), tvl: Number(p.tvl) })).sort((a,b) => a.date-b.date);
   if (!points.length) throw Error("TVL history unavailable");
-  return points.slice(-90);
+  const start = points.at(-1)!.date - 89 * 86400;
+  return points.filter(p=>p.date >= start).slice(-90);
 }
 export function arcProtocols(value: unknown) {
   if (!Array.isArray(value)) throw Error("Protocol rankings unavailable");

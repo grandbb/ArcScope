@@ -62,6 +62,9 @@ test('stablecoin capitalization sums USD-converted currencies and uses a seven-d
  const p=llama.stablecoinSummary([{date:'100',totalCirculatingUSD:{peggedUSD:100,peggedEUR:20}},{date:String(100+7*86400),totalCirculatingUSD:{peggedUSD:120,peggedEUR:24}}]);assert.equal(p.value,144);assert.ok(Math.abs(p.change7d-20)<1e-9);
  assert.throws(()=>llama.stablecoinSummary([]));assert.throws(()=>llama.parseTvlHistory({}));
 });
+test('TVL history uses a 90-day date window even when provider observations have gaps',()=>{
+ const day=86400;const p=llama.parseTvlHistory([{date:day,tvl:0},{date:50*day,tvl:1},{date:100*day,tvl:2},{date:150*day,tvl:3}]);assert.deepEqual(p.map(p=>p.date),[100*day,150*day]);
+});
 test('complete provider failures retain priced wallet assets and mark DeFi unavailable',async()=>{
  const saved=global.fetch;global.fetch=async()=>{throw Error('offline')};
  try{const api=source('lib/ascope-portfolio.ts',{'./ascope-mainnet':{...deps['./ascope-mainnet'],readPortfolio:async()=>({tokens:[{address:deps['./ascope-mainnet'].USDC_ADDRESS,value:10}],blockNumber:'1',coverage:'wallet',coverageIssues:[],totalValue:10})},'./ascope-wallet-discovery':{readWalletDiscovery:async()=>{throw Error('offline')}}});const p=await api.readFullPortfolio(address);assert.equal(p.totalValue,10);assert.equal(p.defiValue,null);assert.equal(p.defiDebt,null);assert.equal(p.coverageIssues.length,3);assert.deepEqual(p.defiSources,[]);}finally{global.fetch=saved;}
