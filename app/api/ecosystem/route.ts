@@ -20,20 +20,18 @@ function overviewMetric(value: any) {
   return value;
 }
 export async function GET() {
-  const names = ["TVL history", "Protocol rankings", "Stablecoins", "App revenue", "Perpetuals volume"];
-  const [history, protocols, stablecoins, revenue, perps] = await Promise.allSettled([
+  const names = ["TVL history", "Protocol rankings", "Stablecoins", "App revenue"];
+  const [history, protocols, stablecoins, revenue] = await Promise.allSettled([
     json("https://api.llama.fi/v2/historicalChainTvl/Arc").then(parseTvlHistory),
     protocolsForArc(),
     json("https://stablecoins.llama.fi/stablecoincharts/Arc").then(stablecoinSummary),
     json("https://api.llama.fi/overview/fees/Arc?excludeTotalDataChart=true&excludeTotalDataChartBreakdown=true&dataType=dailyRevenue").then(overviewMetric),
-    json("https://api.llama.fi/overview/derivatives/Arc?excludeTotalDataChart=true&excludeTotalDataChartBreakdown=true").then(overviewMetric),
   ] as const);
   const data: ArcEcosystem = {
     history: history.status === "fulfilled" ? history.value : [], protocols: protocols.status === "fulfilled" ? protocols.value : [],
     stablecoins: stablecoins.status === "fulfilled" ? stablecoins.value : null,
     revenue24h: revenue.status === "fulfilled" && revenue.value.chain === "Arc" ? metricNumber(revenue.value.total24h) : null,
-    perps24h: perps.status === "fulfilled" && perps.value.chain === "Arc" ? metricNumber(perps.value.total24h) : null,
-    fetchedAt: new Date().toISOString(), unavailable: [history,protocols,stablecoins,revenue,perps].flatMap((r,i) => r.status === "rejected" ? [names[i]] : []),
+    fetchedAt: new Date().toISOString(), unavailable: [history,protocols,stablecoins,revenue].flatMap((r,i) => r.status === "rejected" ? [names[i]] : []),
   };
   return NextResponse.json({ data }, { headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=300" } });
 }

@@ -89,7 +89,7 @@ export const readPortfolio = unstable_cache(async (address: string): Promise<Por
     mainnetClient.getTransactionCount({ address: address as Address, blockNumber }), readWalletDiscovery(address).catch(() => null),
   ]);
   const addresses = discovery ? discovery.tokens.map(t => t.address) : await trackedTokens();
-  const issues: string[] = discovery ? [] : ["Complete token discovery unavailable; showing tracked contracts only."];
+  const issues: string[] = discovery?.discovery === "catalog" ? [`Explorer discovery unavailable (${discovery.discoveryIssue}); balances are verified against the AScope Arc asset catalog. Assets outside this catalog may be missing.`] : discovery ? [] : ["Complete token discovery unavailable; showing tracked contracts only."];
   const quotes: Record<string, number> = {};
   for (let offset = 0; offset < addresses.length; offset += 30) {
     try {
@@ -119,17 +119,18 @@ export const readPortfolio = unstable_cache(async (address: string): Promise<Por
     }));
   }
   const totalValue = tokens.reduce((sum, token) => sum + (token.value ?? 0), 0);
-  let nftCount: number | null = null;
+  let nftCount: number | null = null, nftCollections: number | null = null;
   if (discovery) {
     try {
       const counts = await Promise.all(discovery.collections.map(async c => c.type === "ERC-721" ? Number(await mainnetClient.readContract({ address: c.address as Address, abi: erc20Abi, functionName: "balanceOf", args: [address as Address], blockNumber })) : c.count));
       if (counts.some(n => !Number.isSafeInteger(n) || n < 0)) throw Error("Invalid NFT count");
       nftCount = counts.reduce((sum, n) => sum + n, 0);
+      nftCollections = counts.filter(n=>n>0).length;
     } catch { issues.push("NFT ownership count could not be fully verified."); }
   }
   for (const token of tokens) token.allocation = totalValue ? (token.value ?? 0) / totalValue * 100 : 0;
-  return { address, totalValue, walletValue: totalValue, change24h: null, tokenCount: tokens.length, nftCount, nftCollections: discovery?.collections.length ?? null, transactionCount: sentCount, tokens, blockNumber: String(blockNumber), updatedAt: new Date().toISOString(), coverage: "ArcScan-discovered tokens with finalized on-chain balances. Prices: GeckoTerminal, with ArcScan quotes as fallback. Unpriced assets and NFT market values are excluded. Native USDC is counted once at $1 per unit. ERC-721 counts are verified on-chain; ERC-1155 quantities follow the explorer snapshot.", unreadableTokens, coverageIssues: issues };
-}, ["ascope-portfolio-v3", arcMainnet.rpcUrls.default.http[0]], { revalidate: 60 });
+  return { address, totalValue, walletValue: totalValue, change24h: null, tokenCount: tokens.length, nftCount, nftCollections, transactionCount: sentCount, tokens, blockNumber: String(blockNumber), updatedAt: new Date().toISOString(), coverage: "ArcScan-discovered tokens (or the AScope contract catalog when discovery is unavailable) with finalized on-chain balances. Prices: GeckoTerminal, with ArcScan quotes as fallback. Unpriced assets and NFT market values are excluded. Native USDC is counted once at $1 per unit. ERC-721 counts are verified on-chain; ERC-1155 quantities follow the explorer snapshot.", unreadableTokens, coverageIssues: issues };
+}, ["ascope-portfolio-v4", arcMainnet.rpcUrls.default.http[0]], { revalidate: 60 });
 
 export const readRecentBlocks = unstable_cache(async () => {
   await verifyMainnet();

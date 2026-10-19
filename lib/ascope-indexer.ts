@@ -22,9 +22,13 @@ export async function readNfts(address: string, pageKey: string | null) {
   try { data = await indexedJson(`/addresses/${address}/nft${query}`); }
   catch {
     const discovery = await readWalletDiscovery(address);
+    const head = await mainnetClient.getBlock({blockTag:"finalized"});
     const items: NFTAsset[] = [];
     for (let offset=0;offset<discovery.collections.length;offset+=3) {
-      const groups = await Promise.all(discovery.collections.slice(offset,offset+3).map(c => readCollectionInventory(address,c.address,c.name)));
+      const groups = await Promise.all(discovery.collections.slice(offset,offset+3).map(async c => {
+        const balance = c.type === "ERC-721" ? await mainnetClient.readContract({address:c.address as Address,abi:erc20Abi,functionName:"balanceOf",args:[address as Address],blockNumber:head.number}) : BigInt(c.count);
+        return balance > BigInt(0) ? readCollectionInventory(address,c.address,c.name) : [];
+      }));
       groups.forEach(group=>items.push(...group));
     }
     return { items, nextPageKey: undefined, coverage: "ArcScan indexed NFT inventory. Collection counts are verified on-chain in the portfolio summary. NFT floor prices are unavailable." };

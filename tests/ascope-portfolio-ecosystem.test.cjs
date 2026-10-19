@@ -21,6 +21,10 @@ test('fails closed for missing/truncated holdings and address mismatches',()=>{
  assert.throws(()=>discovery.parseWalletDiscovery(fixture.replace('ERC-20 Tokens (31)','ERC-20 Tokens (32)'),address));
  assert.throws(()=>discovery.parseWalletDiscovery(fixture,'0x'+'22'.repeat(20)));
 });
+test('blocked discovery uses a contract catalog without embedding wallet balances or quotes',async()=>{
+ const saved=global.fetch;global.fetch=async()=>({ok:false,status:403});
+ try{const d=await discovery.readWalletDiscovery(address);assert.equal(d.discovery,'catalog');assert.equal(d.tokens.length,31);assert.equal(d.collections.length,10);assert.ok(d.tokens.every(t=>t.price===null));assert.ok(!JSON.stringify(d).includes(address));assert.match(d.discoveryIssue,/403/);}finally{global.fetch=saved;}
+});
 test('NFT inventory uses token IDs rather than collection counts or transfer counts',()=>{
  const html=fs.readFileSync(path.join(__dirname,'fixtures/ascope-portfolio/inventory.html'),'utf8');
  const data=discovery.parseNftInventory(html,'0x6049c9a0e26405c0985f9e3685c87d0ae917f82b','Uniswap v4 Positions NFT');

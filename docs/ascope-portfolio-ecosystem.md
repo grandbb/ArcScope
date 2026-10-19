@@ -1,7 +1,7 @@
 # AScope ecosystem and portfolio coverage
 
 The dashboard supplements its existing DefiLlama TVL/DEX/fee cards with live
-stablecoin capitalization, app revenue, perpetual volume, daily TVL history and
+stablecoin capitalization, app revenue, daily TVL changes/history and
 all protocol rankings available for Arc. Protocol rankings use `chainTvls.Arc`,
 not global TVL. Protocol TVLs can overlap and are never added to derive chain TVL.
 Provider requests are cached for five minutes and failed datasets are labeled
@@ -18,7 +18,12 @@ its six-decimal facade are counted once. ERC-721 `balanceOf` gives ownership
 counts, including LP position NFTs; ERC-1155 quantities follow the explorer
 snapshot. Prices come from GeckoTerminal, then ArcScan quotes. Missing prices
 stay null, holdings remain visible, and these tokens are excluded from USD totals.
-If discovery fails, tracked contracts remain readable with a partial-coverage note.
+If discovery fails, `lib/ascope-arc-asset-catalog.ts` supplies a public contract
+catalog (initially 31 ERC-20 contracts and 10 NFT collections, sourced from public
+ArcScan token metadata). This stores no wallet addresses, balances or prices.
+All ownership and balances are still queried on-chain and non-held contracts are
+discarded. Assets outside the catalog may be missing, which is explicitly shown
+in coverage notes. If both methods fail, tracked contracts remain readable.
 The adapter reads at most 200 ERC-20 contracts and reports that cap if reached.
 
 Net value = priced wallet assets + supported DeFi assets − supported DeFi debt.

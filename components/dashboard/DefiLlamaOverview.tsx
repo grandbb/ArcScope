@@ -15,7 +15,7 @@ export function DefiLlamaOverview() {
   const cards = [
     { label: "STABLECOIN MARKET CAP", value: formatMetric(data?.stablecoins?.value ?? null, true), detail: "USD value on Arc · DefiLlama", icon: Wallet, change: data?.stablecoins?.change7d, changeLabel: "previous 7d" },
     { label: "APP REVENUE · 24H", value: formatMetric(data?.revenue24h ?? null, true), detail: "Revenue reported by tracked applications", icon: TrendingUp },
-    { label: "PERPS VOLUME · 24H", value: formatMetric(data?.perps24h ?? null, true), detail: "Tracked perpetual futures trading", icon: Landmark },
+    { label: "TVL CHANGE · 1D", value: change === null ? "Unavailable" : `${change>=0?"+":""}${change.toFixed(2)}%`, detail: "Latest reported day versus previous day", icon: Landmark },
     { label: "DEFI PROTOCOLS", value: data?.unavailable.includes("Protocol rankings") ? "Unavailable" : data ? String(data.protocols.length) : "—", detail: "Protocols with Arc TVL coverage", icon: Layers },
   ];
   return <section className="space-y-4" aria-labelledby="ascope-defillama">

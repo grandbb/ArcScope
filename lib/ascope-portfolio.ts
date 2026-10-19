@@ -75,8 +75,10 @@ export async function uniswapV4Positions(address: string, tokens: Portfolio["tok
   for (const collection of collections) {
     // Arc's verified v4 deployment. Do not apply v4 storage decoding to lookalike NFTs.
     if (collection.address !== "0x6049c9a0e26405c0985f9e3685c87d0ae917f82b") throw Error("Unrecognized Uniswap position manager");
+    const owned = Number(await mainnetClient.readContract({address:collection.address as Address,abi:erc20Abi,functionName:"balanceOf",args:[address as Address],blockNumber}));
+    if (!owned) continue;
     const items = await readCollectionInventory(address, collection.address, collection.name);
-    if (items.length !== collection.count) throw Error("Incomplete Uniswap inventory");
+    if (items.length !== owned) throw Error("Incomplete Uniswap inventory");
     for (const nft of items) {
       const contract = collection.address as Address, id = BigInt(nft.tokenId!);
       const [owner, pool, liquidity, manager] = await Promise.all([
@@ -157,4 +159,4 @@ export const readFullPortfolio = unstable_cache(async (address: string): Promise
   const tokens = base.tokens.filter(t=>!totals.receipts.has(t.address.toLowerCase())).map(t=>({...t}));
   for(const token of tokens) token.allocation = totals.walletValue ? (token.value??0)/totals.walletValue*100 : 0;
   return { ...base, walletValue: totals.walletValue, defiValue: sources.length ? totals.defiValue : null, defiDebt: sources.length ? totals.defiDebt : null, totalValue: totals.totalValue, tokens, tokenCount: tokens.length, defiPositions: positions, defiSources: sources, coverageIssues: issues, coverage: `${base.coverage} DeFi: Aave v4, Morpho, held ERC-4626 vaults and Uniswap v4 positions including accrued fees. Other protocols, staked/transferred-away LP NFTs and NFT market prices are not covered.` };
-}, ["ascope-full-portfolio-v1"], { revalidate: 60 });
+}, ["ascope-full-portfolio-v2"], { revalidate: 60 });

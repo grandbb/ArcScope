@@ -1,6 +1,7 @@
 import { load } from "cheerio";
 import { unstable_cache } from "next/cache";
 import type { NFTAsset } from "./types";
+import { arcAssetCatalog } from "./ascope-arc-asset-catalog";
 
 const scan = "https://arc.etherscan.io";
 const addressPattern = /^0x[0-9a-f]{40}$/i;
@@ -29,15 +30,21 @@ export function parseWalletDiscovery(html: string, address: string) {
   const expectedTokens = Number(text.match(/ERC-20 Tokens\s*\(([\d,]+)\)/)?.[1]?.replace(/,/g, "") ?? 0);
   const expectedCollections = Number(text.match(/NFT Tokens\s*\(([\d,]+)\)/)?.[1]?.replace(/,/g, "") ?? 0);
   if (tokens.length !== expectedTokens || collections.length !== expectedCollections) throw Error("Explorer wallet discovery is incomplete");
-  return { tokens, collections, source: `${scan}/address/${address}` };
+  return { tokens, collections, source: `${scan}/address/${address}`, discovery: "explorer" as const, discoveryIssue: null as string | null };
 }
 
 export const readWalletDiscovery = unstable_cache(async (address: string) => {
   if (!addressPattern.test(address)) throw Error("Invalid wallet address");
-  const r = await fetch(`${scan}/address/${address}`, { cache: "no-store", signal: AbortSignal.timeout(10000) });
-  if (!r.ok) throw Error("Wallet explorer unavailable");
-  return parseWalletDiscovery(await r.text(), address);
-}, ["ascope-wallet-discovery-v1"], { revalidate: 60 });
+  try {
+    const r = await fetch(`${scan}/address/${address}`, { cache: "no-store", signal: AbortSignal.timeout(10000) });
+    if (!r.ok) throw Error(`Explorer HTTP ${r.status}`);
+    return parseWalletDiscovery(await r.text(), address);
+  } catch (error) {
+    // Use a transparent contract catalog when discovery is unavailable. Ownership
+    // and balances are still read from RPC; never ship account-specific snapshots.
+    return { tokens: arcAssetCatalog.tokens, collections: arcAssetCatalog.collections, source: scan, discovery: "catalog" as const, discoveryIssue: error instanceof Error ? error.message : "Explorer unavailable" };
+  }
+}, ["ascope-wallet-discovery-v2"], { revalidate: 60 });
 
 export function parseNftInventory(html: string, contract: string, collection: string) {
   const $ = load(html), items: NFTAsset[] = [];

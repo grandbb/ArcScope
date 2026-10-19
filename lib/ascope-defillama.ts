@@ -25,7 +25,6 @@ export interface ArcEcosystem {
   protocols: ReturnType<typeof arcProtocols>;
   stablecoins: ReturnType<typeof stablecoinSummary> | null;
   revenue24h: number | null;
-  perps24h: number | null;
   fetchedAt: string;
   unavailable: string[];
 }
