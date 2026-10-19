@@ -60,8 +60,8 @@ export function ArcTracker() {
           <div role="img" aria-label="ARC holder distribution. Exact balances and percentages are listed in the adjacent table." className="h-80 min-w-0"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={chart} dataKey="value" nameKey="name" innerRadius="54%" outerRadius="83%" stroke="none" paddingAngle={1}>{chart.map((item, i) => <Cell key={item.name} fill={colors[i]} />)}</Pie><Tooltip wrapperStyle={{ zIndex: 20 }} content={({ active, payload }) => {
             const holder = payload?.[0];
             if (!active || !holder) return null;
-            return <div className="max-w-[min(320px,calc(100vw-48px))] rounded-xl border border-slate-500 bg-[#131724] px-4 py-3 text-sm text-slate-50 shadow-xl">
-              <p className={`break-all font-medium ${String(holder.name).startsWith("0x") ? "font-mono text-[11px]" : ""}`}>{holder.name}</p>
+            return <div className="max-w-[min(360px,calc(100vw-48px))] rounded-xl border border-slate-500 bg-[#131724] px-4 py-3 text-sm text-slate-50 shadow-xl">
+              <p className={`font-medium ${String(holder.name).startsWith("0x") ? "whitespace-nowrap font-mono text-[10px] sm:text-[11px]" : "break-words"}`}>{holder.name}</p>
               <p className="mt-2 font-semibold tabular-nums">Balance : {num(Number(holder.value))} ARC</p>
             </div>;
           }} /></PieChart></ResponsiveContainer></div>
