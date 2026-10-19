@@ -43,7 +43,7 @@ export function ArcTracker() {
     }, staleTime: 300000, refetchInterval: 300000, retry: 1,
   });
   const data = query.data?.data;
-  const chart = data ? [...data.holders.map((h, i) => ({ name: h.label ?? `#${i + 1} ${short(h.address)}`, value: h.balance })), ...(data.other > 0 ? [{ name: "Other holders", value: data.other }] : [])] : [];
+  const chart = data ? [...data.holders.map(h => ({ name: h.label || h.address, value: h.balance })), ...(data.other > 0 ? [{ name: "Other holders", value: data.other }] : [])] : [];
   return <div className="space-y-6 pb-20 md:pb-4">
     <header className="flex flex-wrap items-start justify-between gap-4">
       <div><p className="mb-2 text-xs font-semibold uppercase tracking-[.2em] text-primary">Explore · Arc Mainnet</p><h1 className="flex items-center gap-3 text-3xl font-bold"><Coins className="text-primary" /> ARC Tracker</h1><p className="mt-2 text-sm text-muted-foreground">Token supply, ownership distribution and the latest transfers.</p></div>
@@ -57,7 +57,14 @@ export function ArcTracker() {
       <TokenAllocation />
       <section className="rounded-2xl border bg-card p-5 md:p-6"><h2 className="text-xl font-semibold">Who holds ARC?</h2><p className="mt-1 text-sm text-muted-foreground">Top 10 addresses as a share of total supply. Other holders are grouped together.</p>
         <div className="mt-4 grid items-center gap-6 lg:grid-cols-[.8fr_1.2fr]">
-          <div role="img" aria-label="ARC holder distribution. Exact balances and percentages are listed in the adjacent table." className="h-80 min-w-0"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={chart} dataKey="value" nameKey="name" innerRadius="54%" outerRadius="83%" stroke="none" paddingAngle={1}>{chart.map((item, i) => <Cell key={item.name} fill={colors[i]} />)}</Pie><Tooltip formatter={(value: number) => [`${num(value)} ARC`, "Balance"]} contentStyle={{ background: "#131724", border: "1px solid #64748b", borderRadius: 12, padding: "12px 16px", fontSize: 14, color: "#f8fafc", boxShadow: "0 8px 24px rgba(0, 0, 0, 0.35)" }} itemStyle={{ color: "#f8fafc", fontWeight: 600 }} labelStyle={{ color: "#f8fafc" }} /></PieChart></ResponsiveContainer></div>
+          <div role="img" aria-label="ARC holder distribution. Exact balances and percentages are listed in the adjacent table." className="h-80 min-w-0"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={chart} dataKey="value" nameKey="name" innerRadius="54%" outerRadius="83%" stroke="none" paddingAngle={1}>{chart.map((item, i) => <Cell key={item.name} fill={colors[i]} />)}</Pie><Tooltip wrapperStyle={{ zIndex: 20 }} content={({ active, payload }) => {
+            const holder = payload?.[0];
+            if (!active || !holder) return null;
+            return <div className="max-w-[min(320px,calc(100vw-48px))] rounded-xl border border-slate-500 bg-[#131724] px-4 py-3 text-sm text-slate-50 shadow-xl">
+              <p className={`break-all font-medium ${String(holder.name).startsWith("0x") ? "font-mono text-[11px]" : ""}`}>{holder.name}</p>
+              <p className="mt-2 font-semibold tabular-nums">Balance : {num(Number(holder.value))} ARC</p>
+            </div>;
+          }} /></PieChart></ResponsiveContainer></div>
           <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="border-b text-left text-xs text-muted-foreground"><th className="py-3">Holder</th><th className="py-3 text-right">Balance (ARC)</th><th className="py-3 pl-4 text-right">Supply %</th></tr></thead><tbody>{data.holders.map((h, i) => <tr key={h.address} className="border-b border-white/5"><td className="py-3"><span className="mr-2 inline-block h-2 w-2 rounded-full" style={{ background: colors[i] }} /><span className="mr-2 text-xs text-muted-foreground">{i + 1}</span><AddressLink address={h.address} label={h.label} /></td><td className="py-3 text-right tabular-nums">{num(h.balance)}</td><td className="py-3 pl-4 text-right tabular-nums">{h.share.toFixed(4)}%</td></tr>)}{data.other > 0 && <tr><td className="pt-3 text-muted-foreground">● Other holders</td><td className="pt-3 text-right">{num(data.other)}</td><td className="pl-4 pt-3 text-right">{(data.other / data.supply * 100).toFixed(4)}%</td></tr>}</tbody></table></div>
         </div><p className="mt-5 text-xs leading-relaxed text-muted-foreground">Addresses are not necessarily individual people. Public names from ArcScan and Arc Explorer replace addresses when available; hover a name to see its address. A public label does not verify a personal identity. Total supply is not circulating supply.</p>
       </section>
