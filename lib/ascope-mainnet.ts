@@ -2,6 +2,7 @@ import { unstable_cache } from "next/cache";
 import { createPublicClient, custom, erc20Abi, formatUnits, http, type Address } from "viem";
 import { arcMainnet } from "./chains";
 import type { GasData, Portfolio, TokenBalance } from "./types";
+import { readWalletDiscovery } from "./ascope-wallet-discovery";
 
 export const USDC_ADDRESS = "0x3600000000000000000000000000000000000000";
 const rpc = http(arcMainnet.rpcUrls.default.http[0], { batch: { batchSize: 8, wait: 20 }, timeout: 8_000, retryCount: 0 })({chain:arcMainnet,retryCount:0});
@@ -83,30 +84,52 @@ export const readPortfolio = unstable_cache(async (address: string): Promise<Por
   await verifyMainnet();
   const head = await mainnetClient.getBlock({ blockTag: "finalized" });
   const blockNumber = head.number;
-  const [native, sentCount, addresses] = await Promise.all([
+  const [native, sentCount, discovery] = await Promise.all([
     mainnetClient.getBalance({ address: address as Address, blockNumber }),
-    mainnetClient.getTransactionCount({ address: address as Address, blockNumber }), trackedTokens(),
+    mainnetClient.getTransactionCount({ address: address as Address, blockNumber }), readWalletDiscovery(address).catch(() => null),
   ]);
+  const addresses = discovery ? discovery.tokens.map(t => t.address) : await trackedTokens();
+  const issues: string[] = discovery ? [] : ["Complete token discovery unavailable; showing tracked contracts only."];
+  const quotes: Record<string, number> = {};
+  for (let offset = 0; offset < addresses.length; offset += 30) {
+    try {
+      const body = await marketJson(`/tokens/multi/${addresses.slice(offset, offset + 30).join(",")}`);
+      for (const item of body.data ?? []) {
+        const price = finiteNumber(item.attributes?.price_usd);
+        if (item.id === `arc_${item.attributes?.address?.toLowerCase()}` && price !== null) quotes[item.attributes.address.toLowerCase()] = price;
+      }
+    } catch { /* Explorer quotes remain available when market quotes are missing. */ }
+  }
   const balance = Number(formatUnits(native, 18));
   const tokens: TokenBalance[] = [{ address: USDC_ADDRESS, name: "USD Coin (native)", symbol: "USDC", balance, price: 1, value: balance, change24h: null, allocation: 0 }];
   const unreadableTokens: string[] = [];
   // Native USDC and the 6-decimal ERC-20 facade are the same holdings: count once.
-  const candidates = addresses.filter(a => a.toLowerCase() !== USDC_ADDRESS);
+  const candidates = addresses.filter(a => a.toLowerCase() !== USDC_ADDRESS).slice(0, 200);
+  if (addresses.length > 200) issues.push("Only the first 200 discovered token contracts were read.");
   for (let offset = 0; offset < candidates.length; offset += 5) {
     await Promise.all(candidates.slice(offset, offset + 5).map(async tokenAddress => {
       try {
         const amount = await mainnetClient.readContract({ address: tokenAddress as Address, abi: erc20Abi, functionName: "balanceOf", args: [address as Address], blockNumber });
         if (!amount) return;
-        const facts = await tokenFacts(tokenAddress);
+        const indexed = discovery?.tokens.find(t => t.address === tokenAddress);
+        const facts = indexed ? { address: tokenAddress, name: indexed.name, symbol: indexed.symbol, decimals: await mainnetClient.readContract({ address: tokenAddress as Address, abi: erc20Abi, functionName: "decimals", blockNumber }), price: quotes[tokenAddress] ?? indexed.price } : await tokenFacts(tokenAddress);
         const tokenBalance = Number(formatUnits(amount, facts.decimals));
         tokens.push({ ...facts, balance: tokenBalance, value: facts.price === null ? null : tokenBalance * facts.price, change24h: null, allocation: 0 });
       } catch { unreadableTokens.push(tokenAddress); }
     }));
   }
   const totalValue = tokens.reduce((sum, token) => sum + (token.value ?? 0), 0);
+  let nftCount: number | null = null;
+  if (discovery) {
+    try {
+      const counts = await Promise.all(discovery.collections.map(async c => c.type === "ERC-721" ? Number(await mainnetClient.readContract({ address: c.address as Address, abi: erc20Abi, functionName: "balanceOf", args: [address as Address], blockNumber })) : c.count));
+      if (counts.some(n => !Number.isSafeInteger(n) || n < 0)) throw Error("Invalid NFT count");
+      nftCount = counts.reduce((sum, n) => sum + n, 0);
+    } catch { issues.push("NFT ownership count could not be fully verified."); }
+  }
   for (const token of tokens) token.allocation = totalValue ? (token.value ?? 0) / totalValue * 100 : 0;
-  return { address, totalValue, change24h: null, tokenCount: tokens.length, nftCount: null, transactionCount: sentCount, tokens, blockNumber: String(blockNumber), updatedAt: new Date().toISOString(), coverage: "Native USDC and tracked Arc token contracts. Unpriced assets are excluded from USD totals. Native USDC is valued at $1 per unit. NFT count and complete historical portfolio valuation require an indexer.", unreadableTokens };
-}, ["ascope-portfolio-v2", arcMainnet.rpcUrls.default.http[0]], { revalidate: 60 });
+  return { address, totalValue, walletValue: totalValue, change24h: null, tokenCount: tokens.length, nftCount, nftCollections: discovery?.collections.length ?? null, transactionCount: sentCount, tokens, blockNumber: String(blockNumber), updatedAt: new Date().toISOString(), coverage: "ArcScan-discovered tokens with finalized on-chain balances. Prices: GeckoTerminal, with ArcScan quotes as fallback. Unpriced assets and NFT market values are excluded. Native USDC is counted once at $1 per unit. ERC-721 counts are verified on-chain; ERC-1155 quantities follow the explorer snapshot.", unreadableTokens, coverageIssues: issues };
+}, ["ascope-portfolio-v3", arcMainnet.rpcUrls.default.http[0]], { revalidate: 60 });
 
 export const readRecentBlocks = unstable_cache(async () => {
   await verifyMainnet();

@@ -1,2 +1,12 @@
-import { Coins, Image, ReceiptText, TrendingUp } from "lucide-react"; import { MetricCard } from "@/components/shared/MetricCard"; import type { Portfolio } from "@/lib/types"; import { formatCurrency, formatNumber } from "@/lib/formatters";
-export function PortfolioStats({ portfolio }: { portfolio: Portfolio }) { return <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"><MetricCard label="Tracked priced assets" value={formatCurrency(portfolio.totalValue)} change={portfolio.change24h ?? undefined} icon={TrendingUp}/><MetricCard label="Tracked tokens" value={String(portfolio.tokenCount)} icon={Coins}/><MetricCard label="NFTs" value={portfolio.nftCount === null ? "Unavailable" : String(portfolio.nftCount)} icon={Image}/><MetricCard label="Outgoing transactions" value={formatNumber(portfolio.transactionCount)} icon={ReceiptText}/></div>; }
+import { Coins, Image, Landmark, Wallet } from "lucide-react";
+import { MetricCard } from "@/components/shared/MetricCard";
+import type { Portfolio } from "@/lib/types";
+import { formatCurrency } from "@/lib/formatters";
+export function PortfolioStats({ portfolio: p }: { portfolio: Portfolio }) {
+  return <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <MetricCard label="Wallet assets" value={formatCurrency(p.walletValue ?? p.totalValue)} icon={Wallet}/>
+    <MetricCard label="DeFi assets" value={p.defiValue == null ? "Unavailable" : formatCurrency(p.defiValue)} icon={Landmark}/>
+    <MetricCard label="DeFi debt" value={p.defiDebt == null ? "Unavailable" : formatCurrency(p.defiDebt)} icon={Coins}/>
+    <MetricCard label="NFTs owned" value={p.nftCount === null ? "Unavailable" : String(p.nftCount)} icon={Image}/>
+  </div>;
+}

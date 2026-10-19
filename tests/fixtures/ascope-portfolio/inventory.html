@@ -1,0 +1,183 @@
+<!DOCTYPE html><html id="html" lang="en" data-bs-theme="light"><head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="Description" content="ArcScan allows you to explore and search the Arc blockchain for transactions, addresses, tokens, prices and other activities taking place on Arc">
+    <meta name="author" content="arc.etherscan.io">
+    <meta name="keywords" content="Arc, explorer, search, blockchain, crypto, currency">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="robots" content="noindex">
+    <link rel="shortcut icon" href="/assets/arc/images/favicon.ico">
+
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/assets/vendor/font-awesome/css/all.min.css?v=26.7.5.0">
+    <link rel="stylesheet" href="/assets/css/theme.min.css?v=26.7.5.0">
+    <link rel="stylesheet" href="/assets/arc/css/arc.min.css?v=26.7.5.0">
+
+    
+    
+    
+    
+    
+    
+
+    <style>
+        #overlay {
+            color: #666666;
+            position: fixed;
+            height: 100%;
+            width: 100%;
+            z-index: 5000;
+            top: 0;
+            left: 0;
+            float: left;
+            text-align: center;
+        }
+
+        .graphic {
+            height: 140px;
+        }
+
+        .owner {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+            margin-left: 12%;
+            width: 80%;
+        }
+
+        .ens-block {
+            background: #598df6 url(../../images/svg/brands/ens-light.svg) 50% no-repeat !important;
+        }
+
+        .ens-block--light {
+            background-color: rgba(89,141,246,.6) !important;
+            font-style: italic;
+        }
+
+        .crypto-block {
+            background: #598df6 url(../../images/svg/brands/unstopabbledomains-light.svg) 50% no-repeat !important;
+            background-size: cover !important;
+        }
+
+        .crypto-block--light {
+            background-color: rgba(89,141,246,.6) !important;
+            font-style: italic;
+        }
+    </style>
+    <style>
+        .nft-block-wrapper {
+            display: block;
+            border: 1px solid var(--bs-border-color);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+        }
+        .nft-block {
+            position: relative;
+            height: 180px;
+            max-width: 180px;
+            display: -ms-flexbox;
+            display: flex;
+            -ms-flex-align: center;
+            align-items: center;
+            text-align: center;
+            transition: all .2s;
+            border-radius: 0.35rem;
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 0.75rem;
+        }
+        .nft-block-img {
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: 0.35rem;
+        }
+        .nft-block-badge-wrapper {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+        }
+        .nft-block-badge {
+            display: inline-block;
+            padding: 0 0.25rem;
+            font-size: .76562rem;
+            font-style: normal;
+            color: #1e2022;
+            background-color: #fff;
+            box-shadow: 0 0.1rem 0.2rem rgb(0 0 0 / 15%);
+            border-radius: 0.25rem;
+        }
+        .nft-block-edn {
+            font-size: 1rem;
+            padding: 0.75rem;
+            color: #fff;
+            background-color: #598df6;
+            background-repeat: no-repeat;
+            background-position: 50%;
+            background-size: cover;
+        }
+        .nft-block-edn--light {
+            background-color: rgba(89,141,246,.6);
+            font-style: italic;
+        }
+        .nft-block-text {
+            width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    </style>
+    
+</head>
+<body id="body">
+    <div class="card">
+        
+        
+        <!-- Data Info -->
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <p class="mb-0">
+                    <i id="spinwheel" class="fa fa-spin fa-spinner fa-1x fa-pulse me-1" style="display: none;"></i>
+                    &nbsp;A total of 1 token found
+                </p>
+
+                <nav aria-label="page navigation">
+                    <ul class="pagination pagination-sm mb-0"><li class="page-item disabled"><span class="page-link">First</span></li><li class="page-item disabled"><span class="page-link px-3"><i class="fa fa-chevron-left small"></i></span><span class="sr-only">Previous</span></li><li class="page-item disabled"><span class="page-link text-nowrap">Page 1 of 1</span></li><li class="page-item disabled"><span class="page-link px-3"><i class="fa fa-chevron-right small"></i></span><span class="sr-only">Previous</span></li><li class="page-item disabled"><span class="page-link">Last</span></li>
+                </ul></nav>
+            </div>
+        </div>
+        <!-- End Data Info -->
+
+        <div id="grid-container" class="row row-cols-mobile-1 row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 row-cols-xl-6 mx-0"><div class="col mb-4"><div class="nft-block-wrapper"><a href="/nft/0x6049c9a0e26405c0985f9e3685c87d0ae917f82b/293963" target="_parent"><span class="nft-block bg-soft-secondary"><img class="nft-block-img" loading="lazy" style="width:64px;" src="/images/main/nft-placeholder.svg" onerror="nftImageErrorHandler(this)"></span></a><div class="fs-sm text-muted text-truncate mb-1">Token ID: <a href="/token/0x6049c9a0e26405c0985f9e3685c87d0ae917f82b?a=293963" target="_parent" data-bs-toggle="tooltip" title="293963">293963</a></div><div class="fs-sm text-muted text-truncate">Last Traded: N/A</div></div></div></div>
+
+        <!-- Table -->
+        
+        <!-- End Table -->
+
+        <!-- Table Footer -->
+        <div class="card-footer d-flex justify-content-md-end align-items-center text-secondary">
+            <div class="d-inline-block">
+                
+            </div>
+        </div>
+        <!-- End Table Footer -->
+    </div>
+
+
+<style>
+    .popover {
+        min-height: 100px;
+        min-width: 260px;
+        border: none;
+        box-shadow: 0 0.5rem 1.2rem rgba(189,197,209,.7);
+    }
+</style>
+
+</body></html>

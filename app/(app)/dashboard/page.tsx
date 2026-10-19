@@ -5,6 +5,7 @@ import { LiveBlockFeed } from "@/components/dashboard/LiveBlockFeed";
 import { WhaleAlerts } from "@/components/dashboard/WhaleAlerts";
 import { TopMovers } from "@/components/dashboard/TopMovers";
 import { TopTvlTokens } from "@/components/dashboard/TopTvlTokens";
+import { DefiLlamaOverview } from "@/components/dashboard/DefiLlamaOverview";
 
 export default function DashboardPage() {
   return <div className="space-y-6">
@@ -19,6 +20,7 @@ export default function DashboardPage() {
       />
     </section>
     <StatsRow />
+    <DefiLlamaOverview />
     <section className="grid gap-4 lg:grid-cols-[1.15fr_.85fr]"><LiveBlockFeed /><WhaleAlerts /></section>
     <TopTvlTokens />
     <TopMovers />

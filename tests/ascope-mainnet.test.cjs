@@ -9,7 +9,7 @@ function source(file,deps={}){
  new Function('require','module','exports',code)(name=> name in deps?deps[name]:require(name),module,module.exports);
  return module.exports;
 }
-const cache={'next/cache':{unstable_cache:fn=>fn}};
+const cache={'next/cache':{unstable_cache:fn=>fn},'./ascope-wallet-discovery':{readWalletDiscovery:async()=>{throw Error('indexer unavailable')},readCollectionInventory:async()=>{throw Error('indexer unavailable')}}};
 const clientDeps=client=>({...cache,'viem':{...viem,createPublicClient:()=>client},'./chains':{arcMainnet:chain}});
 const emptyMarket=async()=>({ok:true,json:async()=>({data:[],included:[]})});
 test('portfolio reads 18-decimal native USDC once, omits the ERC-20 facade and leaves unknown metrics null',async()=>{
@@ -65,7 +65,7 @@ test('unconfigured DeFi and DAO coverage reports unavailable rather than empty p
  const savedVaults=process.env.ASCOPE_ERC4626_VAULTS,savedTokens=process.env.ASCOPE_GOVERNANCE_TOKENS;
  delete process.env.ASCOPE_ERC4626_VAULTS;delete process.env.ASCOPE_GOVERNANCE_TOKENS;
  try{
-  const api=source('lib/ascope-indexer.ts',{'./ascope-mainnet':{verifyMainnet:async()=>true}});
+  const api=source('lib/ascope-indexer.ts',{...cache,'./ascope-mainnet':{verifyMainnet:async()=>true}});
   await assert.rejects(()=>api.readDefi('0x'+'11'.repeat(20)),/not been configured/);
   await assert.rejects(()=>api.readDaos('0x'+'11'.repeat(20)),/not been configured/);
  }finally{if(savedVaults!==undefined)process.env.ASCOPE_ERC4626_VAULTS=savedVaults;if(savedTokens!==undefined)process.env.ASCOPE_GOVERNANCE_TOKENS=savedTokens;}
@@ -73,8 +73,8 @@ test('unconfigured DeFi and DAO coverage reports unavailable rather than empty p
 test('an inaccessible NFT index is an error, not a false no-NFT result',async()=>{
  const saved=global.fetch;global.fetch=async()=>({ok:false,status:403});
  try{
-  const api=source('lib/ascope-indexer.ts',{'./ascope-mainnet':{verifyMainnet:async()=>true}});
-  await assert.rejects(()=>api.readNfts('0x'+'11'.repeat(20),null),/index is unavailable/);
+  const api=source('lib/ascope-indexer.ts',{...cache,'./ascope-mainnet':{verifyMainnet:async()=>true}});
+  await assert.rejects(()=>api.readNfts('0x'+'11'.repeat(20),null),/indexer unavailable/);
  }finally{global.fetch=saved;}
 });
 
