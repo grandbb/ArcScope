@@ -9,7 +9,7 @@ function source(file,deps={}){
  new Function('require','module','exports',code)(name=> name in deps?deps[name]:require(name),module,module.exports);
  return module.exports;
 }
-const cache={'next/cache':{unstable_cache:fn=>fn},'./ascope-wallet-discovery':{readWalletDiscovery:async()=>{throw Error('indexer unavailable')},readCollectionInventory:async()=>{throw Error('indexer unavailable')}}};
+const cache={'next/cache':{unstable_cache:fn=>fn},'./ascope-wallet-discovery':{readWalletDiscovery:async()=>{throw Error('indexer unavailable')},readCollectionInventory:async()=>{throw Error('indexer unavailable')}},'./ascope-nft-metadata':{browserNftUri:value=>value??'',enrichNftAssets:async items=>items}};
 const clientDeps=client=>({...cache,'viem':{...viem,createPublicClient:()=>client},'./chains':{arcMainnet:chain}});
 const emptyMarket=async()=>({ok:true,json:async()=>({data:[],included:[]})});
 test('portfolio reads 18-decimal native USDC once, omits the ERC-20 facade and leaves unknown metrics null',async()=>{

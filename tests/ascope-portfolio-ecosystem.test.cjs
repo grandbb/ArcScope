@@ -31,6 +31,14 @@ test('NFT inventory uses token IDs rather than collection counts or transfer cou
  assert.equal(data.total,1);assert.equal(data.items.length,1);assert.equal(data.items[0].tokenId,'293963');assert.equal(data.pageCount,1);
  assert.throws(()=>discovery.parseNftInventory('<html>Unavailable</html>','0x'+'11'.repeat(20),'NFT'));
 });
+test('NFT metadata accepts on-chain JSON and converts decentralized image URIs',()=>{
+ const metadata=source('lib/ascope-nft-metadata.ts',{'./ascope-mainnet':{mainnetClient:{}}});
+ const embedded='data:application/json;base64,'+Buffer.from(JSON.stringify({name:'Runner #1',image:'ipfs://bafybeigdyrzt/example.svg'})).toString('base64');
+ assert.equal(metadata.parseNftMetadataDataUri(embedded).name,'Runner #1');
+ assert.equal(metadata.browserNftUri('ipfs://bafybeigdyrzt/example.svg'),'https://gateway.pinata.cloud/ipfs/bafybeigdyrzt/example.svg');
+ assert.equal(metadata.browserNftUri('http://example.com/image.png'),'');
+ assert.equal(metadata.browserNftUri('data:text/html,bad'),'');
+});
 const deps={'./ascope-mainnet':{USDC_ADDRESS:'0x3600000000000000000000000000000000000000'},'./ascope-wallet-discovery':{}};
 const {liquidityPrincipal,positionTicks,accruedFees,portfolioTotals}=source('lib/ascope-portfolio.ts',deps);
 test('Uniswap principal respects both tick boundaries and signed position ticks',()=>{

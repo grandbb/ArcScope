@@ -2,6 +2,7 @@ import { erc20Abi, formatUnits, parseAbi, type Address } from "viem";
 import { mainnetClient, tokenFacts, verifyMainnet } from "./ascope-mainnet";
 import type { DAO, DefiPosition, NFTAsset } from "./types";
 import { readCollectionInventory, readWalletDiscovery } from "./ascope-wallet-discovery";
+import { browserNftUri, enrichNftAssets } from "./ascope-nft-metadata";
 
 /** A Blockscout-compatible Arc indexer can be configured without exposing credentials to browsers. */
 export async function indexedJson(path: string) {
@@ -31,14 +32,15 @@ export async function readNfts(address: string, pageKey: string | null) {
       }));
       groups.forEach(group=>items.push(...group));
     }
-    return { items, nextPageKey: undefined, coverage: "ArcScan indexed NFT inventory. Collection counts are verified on-chain in the portfolio summary. NFT floor prices are unavailable." };
+    return { items: await enrichNftAssets(items), nextPageKey: undefined, coverage: "ArcScan indexed NFT inventory enriched with on-chain and IPFS metadata. Collection counts are verified on-chain in the portfolio summary. NFT floor prices are unavailable." };
   }
   if (!Array.isArray(data.items)) throw new Error("Invalid NFT index response");
   const items: NFTAsset[] = data.items.flatMap((group: any) => (group.token_instances ?? (group.id !== undefined ? [group] : [])).map((nft: any) => {
     const metadata = nft.metadata ?? {};
-    return { id: `${group.token?.address_hash}:${nft.id}`, name: metadata.name || `${group.token?.name ?? "NFT"} #${nft.id}`, collection: group.token?.name ?? group.token?.address_hash, image: nft.image_url ?? metadata.image ?? "", description: metadata.description, traits: (metadata.attributes ?? []).filter((a: any) => a.trait_type && a.value !== undefined).map((a: any) => ({ traitType: String(a.trait_type), value: String(a.value) })) };
+    const contractAddress = group.token?.address_hash ?? nft.token?.address_hash;
+    return { id: `${contractAddress}:${nft.id}`, contractAddress, tokenId: String(nft.id), sourceUrl: contractAddress ? `https://arc.etherscan.io/nft/${contractAddress}/${nft.id}` : undefined, name: metadata.name || `${group.token?.name ?? "NFT"} #${nft.id}`, collection: group.token?.name ?? contractAddress, image: browserNftUri(nft.image_url ?? metadata.image), description: metadata.description, traits: (metadata.attributes ?? []).filter((a: any) => a.trait_type && a.value !== undefined).map((a: any) => ({ traitType: String(a.trait_type), value: String(a.value) })) };
   }));
-  return { items, nextPageKey: data.next_page_params ? new URLSearchParams(data.next_page_params).toString() : undefined, coverage: "Arc Mainnet indexed NFT ownership; floor prices are unavailable without market coverage." };
+  return { items: await enrichNftAssets(items), nextPageKey: data.next_page_params ? new URLSearchParams(data.next_page_params).toString() : undefined, coverage: "Arc Mainnet indexed NFT ownership enriched with on-chain and IPFS metadata; floor prices are unavailable without market coverage." };
 }
 
 function configuredAddresses(variable: string) {

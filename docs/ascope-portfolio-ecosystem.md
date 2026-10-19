@@ -58,11 +58,14 @@ On-chain, protocol-API and price snapshots can have different timestamps.
 NFT gallery: Blockscout is used when available; public ArcScan token-holder
 inventory is the fallback when Blockscout is inaccessible. Every inventory page
 must be complete, with distinct token IDs and at most 20 pages per collection.
-Unavailable metadata images are left blank. The summary NFT count is independent
-of pagination in the gallery.
+The gallery reads `tokenURI` (and `uri` where implemented), decodes on-chain JSON,
+and resolves IPFS or Arweave metadata and images through public HTTPS gateways.
+Only valid HTTPS and bounded image data URIs reach the browser. Collections that
+do not publish usable image metadata retain an explicit unavailable-image card.
+The summary NFT count is independent of pagination in the gallery.
 
 Validation: `node --test tests/ascope-mainnet.test.cjs tests/ascope-portfolio-ecosystem.test.cjs`,
 `npm run typecheck`, `npm run build`. Reduced public ArcScan fixtures were captured
 on 2026-10-19 without cookies. Live validation of the user-provided wallet observed
-38 NFTs across 10 collections and a Uniswap v4 USDC/EURC position; USD estimates
+38 NFTs across 10 collections, with usable images for 34 items, and a Uniswap v4 USDC/EURC position; USD estimates
 are live values and are not hardcoded or shipped as a wallet snapshot.
