@@ -59,4 +59,8 @@ export function parseArcTracker(summary: string, holderHtml: string, transferHtm
   }
   return { supply, holderCount, holders, other: Math.max(0, other), transfers, updatedAt: new Date().toISOString() };
 }
-export type ArcTrackerSnapshot = ReturnType<typeof parseArcTracker>;
+export type ArcTrackerSnapshot = Omit<ReturnType<typeof parseArcTracker>, "transfers"> & {
+  checkedBlock?: number;
+  holderAddresses?: string[];
+  transfers: (ReturnType<typeof parseArcTracker>["transfers"][number] & { logIndex?: number })[];
+};

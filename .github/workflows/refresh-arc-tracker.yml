@@ -25,17 +25,14 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci --ignore-scripts
-      - name: Read the current ArcScan snapshot
+      - name: Verify current finalized Arc Mainnet data
         run: node scripts/update-arc-snapshot.cjs
-      - name: Publish changed on-chain data
+      - name: Publish hourly verified checkpoint
         shell: bash
         run: |
-          if git diff --quiet -- public/ascope-arc-snapshot.json; then
-            echo "ARC holders and transfers are already current."
-            exit 0
-          fi
-          git config user.name "ascope-data-bot"
-          git config user.email "ascope-data-bot@users.noreply.github.com"
+          git config user.name "grandbb"
+          git config user.email "118791134+grandbb@users.noreply.github.com"
           git add public/ascope-arc-snapshot.json
-          git commit -m "Update hourly ARC tracker snapshot"
+          git diff --cached --quiet && exit 0
+          git commit -m "Update hourly ARC tracker checkpoint"
           git push origin HEAD:main

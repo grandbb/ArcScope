@@ -11,21 +11,28 @@ These categories are separate from observed wallet holdings. The section retains
 the whitepaper's qualification that exact unlock/release schedules are to be
 announced; it does not infer wallet identities or circulating supply from allocations.
 
-The server reads ArcScan's public token summary and its holders/transfer tables.
-It maintains the anonymous explorer session for the related table requests;
-cookies stay on the server. No API credentials or user login are required.
-The parser validates the token identity, supply, holder ranking, addresses,
-transfer order and all ten transfer rows. Source markup changes fail closed.
+The server reads finalized Arc Mainnet data over the public RPC. ArcScan blocks
+Vercel and GitHub datacenter requests with HTTP 403, so explorer HTML is no longer
+required for refreshes. The existing HTML parser remains for historical fixtures.
+No API credentials or user login are required.
 
-Next Data Cache stores each result, including unsuccessful refreshes, for five
-minutes. The route also uses a shared CDN cache; requests within one process
-are coalesced. A warm process can retain its last successful snapshot during
-an outage; cold processes use the bundled public ArcScan snapshot in
-`public/ascope-arc-snapshot.json`, captured during release validation. The UI
-shows unavailability or a delayed-data notice and the retrieval timestamp.
-The public explorer has no availability guarantee; if automated requests are
-restricted, replace this adapter with a licensed indexer rather than bypassing
-access controls. The dashboard is unchanged.
+The full 36-holder registry was checked against Arc Explorer on 2026-10-26.
+Each refresh scans subsequent ERC-20 Transfer logs in provider-compatible ranges
+of at most 10,000 blocks, discovers new addresses, and reads all balances and
+totalSupply at one finalized block. Raw integer balances must reconcile exactly
+with totalSupply before a snapshot can be accepted. All discovered addresses and
+the checked block persist in the snapshot. Zero-balance addresses remain in this
+registry so later transfers are handled correctly. The latest 10 transfers merge
+the verified checkpoint with new logs, ordered by block and log index.
+
+Next Data Cache retains successful snapshots for 55 minutes; failures are never
+cached as successful results. The CDN caches successful responses for 60 seconds
+and failed refresh responses use no-store. Browser clients check every 5 minutes.
+The GitHub workflow runs hourly at minute 17, invokes the same on-chain reader,
+and commits its verified checkpoint, triggering a production deployment even
+with no visitors. GitHub scheduled starts can be delayed by the platform; the
+runtime refresh independently keeps active pages current. During RPC failures,
+the UI explicitly marks the last verified snapshot as delayed.
 
 The pie chart uses total supply as its denominator, with the remaining balance
 grouped as Other holders. These addresses are not verified personal identities.
@@ -46,15 +53,10 @@ and check date. These manually checked names supplement live ArcScan labels and
 are included in the bundled fallback snapshot. They do not update automatically
 from Arc Explorer; recheck the source when editing this registry. Allocation
 percentages or common funding are not used to infer ownership.
-Supply is not circulating supply, and data is an explorer snapshot rather than
-an atomic on-chain block snapshot. Transfer timestamps are explicitly UTC.
+Supply is not circulating supply. Current balances are read at the displayed
+finalized block; transfer timestamps are explicitly UTC. Public names are
+manually checked explorer labels and do not automatically change via the RPC.
 
-The production API stores only successful explorer snapshots for 55 minutes.
-Browser clients recheck hourly. A scheduled GitHub workflow reads ArcScan every
-hour and updates the bundled snapshot whenever holder or transfer data changes,
-which triggers the production deployment without requiring an open browser.
-Failed explorer requests never replace or cache over the last complete snapshot.
-
-Validation: `node --test tests/ascope-arc-tracker.test.cjs`, `npm run typecheck`,
+Validation: `node --test tests/ascope-arc-tracker.test.cjs tests/ascope-arc-chain.test.cjs`, `npm run typecheck`,
 and `npm run build`. Fixtures are reduced public ArcScan HTML captured on
 2026-10-16; they contain no cookies or session identifiers.

@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { getArcTracker } from "@/lib/ascope-arc-tracker-server";
-// The anonymous explorer session must be fetched at runtime, never during prerender.
+// Read finalized mainnet data at runtime, never during prerender.
 export const dynamic = "force-dynamic";
 export const preferredRegion = "sin1";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 export async function GET() {
-  return NextResponse.json(await getArcTracker(), { headers: { "Cache-Control": "public, s-maxage=3300, stale-while-revalidate=300" } });
+  const result = await getArcTracker();
+  return NextResponse.json(result, { headers: { "Cache-Control": result.delayed ? "no-store" : "public, s-maxage=60, stale-while-revalidate=30" } });
 }
