@@ -36,9 +36,9 @@ export async function getArcTracker() {
   try {
     const data = await cached();
     lastGood = data;
-    return { data, delayed: false, checkedAt: new Date().toISOString() };
+    return { data, delayed: false, source: "live" as const, checkedAt: new Date().toISOString() };
   } catch (error) {
     console.warn("ARC tracker refresh failed:", error instanceof Error ? error.message : "Unknown source error");
-    return { data: lastGood, delayed: true, checkedAt: new Date().toISOString() };
+    return { data: lastGood, delayed: true, source: "scheduled" as const, checkedAt: new Date().toISOString() };
   }
 }

@@ -35,7 +35,7 @@ export function ArcTracker() {
       window.removeEventListener("focus", update);
     };
   }, []);
-  const query = useQuery<{ data: ArcTrackerSnapshot | null; delayed: boolean; checkedAt: string }>({
+  const query = useQuery<{ data: ArcTrackerSnapshot | null; delayed: boolean; source: "live" | "scheduled"; checkedAt: string }>({
     queryKey: ["ascope-arc-tracker"], queryFn: async () => {
       const response = await fetch("/api/arc-tracker");
       if (!response.ok) throw Error("ARC data is temporarily unavailable.");
@@ -51,7 +51,7 @@ export function ArcTracker() {
     </header>
     <a href={`${scan}/token/${contract}`} target="_blank" rel="noreferrer" className="flex w-fit max-w-full items-center gap-2 break-all rounded-xl border bg-card px-4 py-3 font-mono text-xs text-muted-foreground">{contract}<ExternalLink className="h-4 w-4 shrink-0" /></a>
     {query.isPending && <div role="status" className="rounded-2xl border bg-card p-10 text-center text-muted-foreground">Loading ARC supply, holders and transfers…</div>}
-    {(query.isError || query.data?.delayed || (!query.isPending && !data)) && <p role="alert" className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm text-amber-400">{data ? "Updates are delayed. Showing the last available snapshot below." : "ARC explorer data is temporarily unavailable. Please retry or open ArcScan using the contract link above."}</p>}
+    {(query.isError || query.data?.delayed || (!query.isPending && !data)) && <p role="alert" className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm text-amber-400">{data ? "Live explorer access is unavailable from this server. Showing the latest snapshot maintained by the hourly updater." : "ARC explorer data is temporarily unavailable. Please retry or open ArcScan using the contract link above."}</p>}
     {data && <>
       <div className="grid gap-4 sm:grid-cols-3">{[["Total supply", `${num(data.supply)} ARC`], ["Holder addresses", num(data.holderCount)], ["Top 10 concentration", `${(100 - data.other / data.supply * 100).toFixed(2)}%`]].map(([label, value]) => <div key={label} className="rounded-2xl border bg-card p-5"><p className="text-sm text-muted-foreground">{label}</p><p className="mt-3 break-words text-2xl font-bold tracking-tight">{value}</p></div>)}</div>
       <TokenAllocation />
