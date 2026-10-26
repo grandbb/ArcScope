@@ -25,7 +25,8 @@ the checked block persist in the snapshot. Zero-balance addresses remain in this
 registry so later transfers are handled correctly. The latest 10 transfers merge
 the verified checkpoint with new logs, ordered by block and log index.
 
-Next Data Cache retains successful snapshots for 55 minutes; failures are never
+Next Data Cache retains successful snapshots for 45 minutes, leaving room for
+background revalidation and browser polling within an hour; failures are never
 cached as successful results. The CDN caches successful responses for 60 seconds
 and failed refresh responses use no-store. Browser clients check every 5 minutes.
 The GitHub workflow runs hourly at minute 17, invokes the same on-chain reader,

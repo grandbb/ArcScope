@@ -11,7 +11,7 @@ let pending: Promise<ArcTrackerSnapshot> | null = null;
 const cached = unstable_cache(async () => {
   pending ??= refreshArcOnChain(mainnetClient, lastGood).finally(() => { pending = null; });
   return pending;
-}, ["ascope-arc-tracker-onchain-v1"], { revalidate: 3300 });
+}, ["ascope-arc-tracker-onchain-v2"], { revalidate: 2700 });
 
 export async function getArcTracker() {
   try {
