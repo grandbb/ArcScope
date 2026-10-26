@@ -49,6 +49,11 @@ percentages or common funding are not used to infer ownership.
 Supply is not circulating supply, and data is an explorer snapshot rather than
 an atomic on-chain block snapshot. Transfer timestamps are explicitly UTC.
 
+The production API stores only successful explorer snapshots for 55 minutes.
+Browser clients recheck hourly and a scheduled GitHub workflow warms the production
+endpoint every hour, so the tracker refreshes even when nobody has the page open.
+Failed explorer requests do not replace or cache over the last complete snapshot.
+
 Validation: `node --test tests/ascope-arc-tracker.test.cjs`, `npm run typecheck`,
 and `npm run build`. Fixtures are reduced public ArcScan HTML captured on
 2026-10-16; they contain no cookies or session identifiers.

@@ -58,13 +58,33 @@
     },
     {
       "address": "0x67e2a7ad4e9c2cfe63a265a053f87fb675ac1269",
-      "balance": 534999871,
-      "share": 5.34999871,
+      "balance": 501666558,
+      "share": 5.01666558,
       "label": "FBO ARC presale"
     }
   ],
-  "other": 285000129,
+  "other": 318333442,
   "transfers": [
+    {
+      "hash": "0x8accc3a508df22f022f8c52449c1c789c45bd782f457cd672b4910bba689e5bb",
+      "from": "0x67e2a7ad4e9c2cfe63a265a053f87fb675ac1269",
+      "to": "0xa355fea5200f0ad1458faabfd41e2eb2902737f9",
+      "amount": 8333323,
+      "timestamp": 1792467153000,
+      "block": 26879731,
+      "fromLabel": "FBO ARC presale",
+      "toLabel": null
+    },
+    {
+      "hash": "0xb3d58c9752048b2bed0d618e033c13ba0c9b2a4c7097b0160739152e9bd11c99",
+      "from": "0x67e2a7ad4e9c2cfe63a265a053f87fb675ac1269",
+      "to": "0xdd41681d7dea1a853149ddf3ac2efca7ed906994",
+      "amount": 24999990,
+      "timestamp": 1792467139000,
+      "block": 26879704,
+      "fromLabel": "FBO ARC presale",
+      "toLabel": null
+    },
     {
       "hash": "0x68213b45583b747d51bbd2a3d8a95adcc7ea7b2d65d7d88da7e5091f1547d89d",
       "from": "0x67e2a7ad4e9c2cfe63a265a053f87fb675ac1269",
@@ -144,27 +164,7 @@
       "block": 25995606,
       "fromLabel": "FBO ARC presale",
       "toLabel": null
-    },
-    {
-      "hash": "0x813d72c2708b6c004735f96561b710e9a2e61c8f9c82348319aa3c6ee8e3fef0",
-      "from": "0x67e2a7ad4e9c2cfe63a265a053f87fb675ac1269",
-      "to": "0xb94a86002dca250d693d81281a3f8deecd15b8dc",
-      "amount": 26105923.84,
-      "timestamp": 1792018127000,
-      "block": 25995580,
-      "fromLabel": "FBO ARC presale",
-      "toLabel": null
-    },
-    {
-      "hash": "0x10cf5c04b021338eb122e25863823f7091eb9b3067e9e2fdc44819c5fdfb04ec",
-      "from": "0x67e2a7ad4e9c2cfe63a265a053f87fb675ac1269",
-      "to": "0xb23c9f29bc368c574f4f587e69bdee6ac904e862",
-      "amount": 24318452.17,
-      "timestamp": 1792018114000,
-      "block": 25995555,
-      "fromLabel": "FBO ARC presale",
-      "toLabel": null
     }
   ],
-  "updatedAt": "2026-10-16T07:52:27.907Z"
+  "updatedAt": "2026-10-26T07:50:06.707Z"
 }

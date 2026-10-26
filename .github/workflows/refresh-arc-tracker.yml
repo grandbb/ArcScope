@@ -1,0 +1,14 @@
+name: Refresh AScope ARC tracker
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Warm the hourly ARC snapshot
+        run: curl --fail --show-error --silent --output /dev/null --retry 2 --max-time 60 "https://arc-scope.vercel.app/api/arc-tracker?scheduled=1"
