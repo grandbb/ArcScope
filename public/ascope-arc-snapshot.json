@@ -58,13 +58,24 @@
     },
     {
       "address": "0x67e2a7ad4e9c2cfe63a265a053f87fb675ac1269",
-      "balance": 501666558,
-      "share": 5.01666558,
+      "balance": 500833235,
+      "share": 5.00833235,
       "label": "FBO ARC presale"
     }
   ],
-  "other": 318333442,
+  "other": 319166765,
   "transfers": [
+    {
+      "hash": "0x4d3acdfb641633fe552354204d0d8381044973ec8ff67c151b20a07ed25fc3e2",
+      "from": "0x67e2a7ad4e9c2cfe63a265a053f87fb675ac1269",
+      "to": "0xf9c87fd94a30ac13c7fa8943e6815026f3cfc673",
+      "fromLabel": "FBO ARC presale",
+      "toLabel": null,
+      "amount": 833323,
+      "timestamp": 1794257985000,
+      "block": 30409231,
+      "logIndex": 0
+    },
     {
       "hash": "0x8accc3a508df22f022f8c52449c1c789c45bd782f457cd672b4910bba689e5bb",
       "from": "0x67e2a7ad4e9c2cfe63a265a053f87fb675ac1269",
@@ -154,20 +165,10 @@
       "amount": 25412698.29,
       "timestamp": 1792018169000,
       "block": 25995663
-    },
-    {
-      "hash": "0xf09b6cd76dfc6b4452c0f01b3d030d1af70dd4e551e639bb7d7351277836c834",
-      "from": "0x67e2a7ad4e9c2cfe63a265a053f87fb675ac1269",
-      "to": "0xd4fcdad4dd9a9b858607c3b7ac6d09fbb466359b",
-      "fromLabel": "FBO ARC presale",
-      "toLabel": null,
-      "amount": 23876280.55,
-      "timestamp": 1792018140000,
-      "block": 25995606
     }
   ],
-  "updatedAt": "2026-11-09T18:55:11.687Z",
-  "checkedBlock": 30394465,
+  "updatedAt": "2026-11-10T02:14:39.243Z",
+  "checkedBlock": 30446490,
   "holderAddresses": [
     "0xfc856c14bb9425cbfae88592cf3d14310d1b9663",
     "0xd94a35b51ff932910df4f540a66f362e6831be31",
